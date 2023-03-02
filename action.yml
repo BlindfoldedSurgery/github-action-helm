@@ -1,4 +1,7 @@
-name: "Helm"
+name: "helm-interaction"
+branding:
+  icon: "arrow-up-circle"
+  color: blue
 description: 'interact with helm'
 inputs:
   # custom flags
