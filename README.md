@@ -4,9 +4,45 @@
 
 This action simplifies interaction with the helm command in a github action.
 
+Any input which helm interacts with as a file (e.g. `kubeconfig`) will be written into a temporary file, this action will validate that the file is not empty. If the value is an existing path that file will be used.
+
+## Example
+
 examples can be found in [github-action-helm-examples](https://github.com/openalcoholics/github-action-helm-examples)
 
-Any input which helm interacts with as a file (e.g. `kubeconfig`) will be written into a temporary file, this action will validate that the file is not empty. Using existing files is currently not supported.
+```yaml
+deploy:
+  name: "Publish to k8s"
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v3
+    - name: install helm chart
+      uses: OpenAlcoholics/github-action-helm@v0.1.0
+      with:
+        subcommand: upgrade
+        ref: .
+        release_name: test
+        namespace: testns
+        atomic: true
+        install: true
+        kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
+```
+
+This results in the following output:
+
+```bash
+handle value from kubeconfig as file content (generating temporary file)
+executing helm upgrade test . --kubeconfig=/tmp/VOhIOencxNL2KVCOiYkSnb46aNspaicSs1iEdRnmxtUIlQ6qbPFWBZ74DrAk8Box --namespace=testns --output=table --timeout=5m0s
+Release "test" has been upgraded. Happy Helming!
+NAME: test
+LAST DEPLOYED: Thu Mar  2 18:49:48 2023
+NAMESPACE: testns
+STATUS: deployed
+REVISION: 19
+TEST SUITE: None
+
+```
+
 
 ## Requirements
 
