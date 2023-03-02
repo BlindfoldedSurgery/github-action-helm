@@ -111,6 +111,9 @@ function getValueForName(name, inputs, def = undefined) {
         return parseValueByType(item);
     }
 }
+function getInputsByType(type, inputs) {
+    return inputs.filter((item) => item.value.type === type);
+}
 let inputs = null;
 try {
     const subcommand = core.getInput("subcommand");
@@ -120,8 +123,10 @@ try {
         throw Error("either `subcommand` or `raw_command` has to be set");
     }
     if (rawCommand !== "") {
+        const fileInputs = getInputsByType(models_1.GithubActionInputType.File, inputs);
+        const fileArgs = inputsToHelmFlags(fileInputs);
         const helmArgs = rawCommand.replace(/^helm /, '');
-        const command = `helm ${helmArgs}`;
+        const command = `helm ${helmArgs} ${fileArgs}`;
         console.log(`executing ${command}`);
         const stdout = (0, child_process_1.execSync)(command);
         console.log(stdout);

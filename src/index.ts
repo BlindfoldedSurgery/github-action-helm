@@ -125,6 +125,10 @@ function getValueForName(name: string, inputs: GithubActionInputEntry[], def: st
     }
 }
 
+function getInputsByType(type: GithubActionInputType, inputs: GithubActionInputEntry[]): GithubActionInputEntry[] {
+    return inputs.filter((item: GithubActionInputEntry) => item.value.type === type)
+}
+
 let inputs = null;
 try {
     const subcommand = core.getInput("subcommand");
@@ -135,8 +139,11 @@ try {
         throw Error("either `subcommand` or `raw_command` has to be set");
     }
     if (rawCommand !== "") {
+        const fileInputs = getInputsByType(GithubActionInputType.File, inputs);
+        const fileArgs = inputsToHelmFlags(fileInputs);
+
         const helmArgs = rawCommand.replace(/^helm /, '')
-        const command = `helm ${helmArgs}`
+        const command = `helm ${helmArgs} ${fileArgs}`
         console.log(`executing ${command}`)
         const stdout = execSync(command);
         console.log(stdout);
