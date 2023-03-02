@@ -5,7 +5,7 @@ const RANDOM_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv
 const BASE_PATH = '/tmp';
 
 
- function randomName(length: number): string {
+function randomName(length: number): string {
     let result = '';
     for (let i = 0; i < length; i++) {
         // 10 + 26 + 26 = 62 (RANDOM_CHARS.length)
@@ -26,5 +26,9 @@ export function writeTmpfile(content: string, filenameLength: number = 64): stri
 }
 
 export function deleteTmpfile(name: string): any {
-    return fs.unlinkSync(name);
+    if (name.startsWith(BASE_PATH)) {
+        return fs.unlinkSync(name);
+    } else {
+        return null;
+    }
 }

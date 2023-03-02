@@ -22,6 +22,11 @@ function writeTmpfile(content, filenameLength = 64) {
 }
 exports.writeTmpfile = writeTmpfile;
 function deleteTmpfile(name) {
-    return fs.unlinkSync(name);
+    if (name.startsWith(BASE_PATH)) {
+        return fs.unlinkSync(name);
+    }
+    else {
+        return null;
+    }
 }
 exports.deleteTmpfile = deleteTmpfile;
