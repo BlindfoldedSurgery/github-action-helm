@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs = require('fs');
 const core = require('@actions/core');
 const input_definitions_1 = require("./input_definitions");
 const models_1 = require("./models");
@@ -53,9 +54,16 @@ function handleFileInputs(inputs) {
         if (entry.value.type !== models_1.GithubActionInputType.File || entry.value.value === "") {
             return entry;
         }
-        const path = (0, tmpfile_1.writeTmpfile)(entry.value.value);
-        entry.value.value = path;
-        return entry;
+        if (fs.existsSync(entry.value.value)) {
+            console.info(`handle value from '${entry.name}' as filepath`);
+            return entry;
+        }
+        else {
+            console.info(`handle value from ${entry.name} as file content (generating temporary file)`);
+            const path = (0, tmpfile_1.writeTmpfile)(entry.value.value);
+            entry.value.value = path;
+            return entry;
+        }
     });
 }
 function cleanupFiles(inputs) {

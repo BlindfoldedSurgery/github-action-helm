@@ -1,3 +1,4 @@
+const fs = require('fs');
 const core = require('@actions/core');
 import { GITHUB_ACTIONS_INPUT_CONFIGURATION } from "./input_definitions";
 import { GithubActionInputEntry, GithubActionInputType } from "./models";
@@ -62,9 +63,15 @@ function handleFileInputs(inputs: GithubActionInputEntry[]): GithubActionInputEn
             return entry;
         }
 
-        const path = writeTmpfile(<string>entry.value.value);
-        entry.value.value = path;
-        return entry;
+        if (fs.existsSync(<string>entry.value.value)) {
+            console.info(`handle value from '${entry.name}' as filepath`)
+            return entry;
+        } else {
+            console.info(`handle value from ${entry.name} as file content (generating temporary file)`)
+            const path = writeTmpfile(<string>entry.value.value);
+            entry.value.value = path;
+            return entry;
+        }
     })
 }
 
