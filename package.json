@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "ncc": "^0.3.6",
     "@types/node": "^18.14.1",
     "typescript": "^4.9.5"
   },
