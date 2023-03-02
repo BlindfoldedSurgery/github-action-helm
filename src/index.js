@@ -6,13 +6,13 @@ const input_definitions_1 = require("./input_definitions");
 const models_1 = require("./models");
 const tmpfile_1 = require("./tmpfile");
 const child_process_1 = require("child_process");
-function parseInputs() {
+function parseInputs(subcommand) {
     const result = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION.map((input) => {
         if (input.value.value === undefined || input.value.value === "") {
             input.value.value = input.value.default;
         }
         input.value.value = parseValueByType(input);
-        validateInput(input);
+        validateInput(input, subcommand);
         return input;
     });
     const genName = getValueForName("generate_name", result);
@@ -74,7 +74,7 @@ function cleanupFiles(inputs) {
         (0, tmpfile_1.deleteTmpfile)(entry.value.value);
     });
 }
-function validateInput(input) {
+function validateInput(input, subcommand) {
     // default case is already handled in `parseInputs`
     if (input.value.required && input.value.value === "") {
         throw Error(`${input.name} is required but has no (or empty) value`);
@@ -116,10 +116,11 @@ function getInputsByType(type, inputs) {
 }
 let inputs = null;
 try {
-    const subcommand = core.getInput("subcommand");
+    const rawSubcommand = core.getInput("subcommand");
+    const subcommand = rawSubcommand;
     const rawCommand = core.getInput("raw_command");
-    inputs = parseInputs();
-    if (subcommand === "" && rawCommand === "") {
+    inputs = parseInputs(subcommand);
+    if (subcommand === models_1.HelmSubcommand.None && rawCommand === "") {
         throw Error("either `subcommand` or `raw_command` has to be set");
     }
     if (rawCommand !== "") {
@@ -135,7 +136,7 @@ try {
         const releaseName = getValueForName("release_name", inputs, "");
         const ref = getValueForName("ref", inputs);
         const flags = inputsToHelmFlags(inputs).join(" ");
-        const command = `helm ${subcommand} ${releaseName} ${ref} ${flags}`;
+        const command = `helm ${rawSubcommand} ${releaseName} ${ref} ${flags}`;
         console.log(`executing ${command}`);
         const stdout = (0, child_process_1.execSync)(command);
         console.log(stdout.toString());

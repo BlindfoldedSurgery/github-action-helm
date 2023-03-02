@@ -1,18 +1,18 @@
 const fs = require('fs');
 const core = require('@actions/core');
 import { GITHUB_ACTIONS_INPUT_CONFIGURATION } from "./input_definitions";
-import { GithubActionInputEntry, GithubActionInputType } from "./models";
+import { GithubActionInputEntry, GithubActionInputType, HelmSubcommand } from "./models";
 import { writeTmpfile, deleteTmpfile } from "./tmpfile";
 import { execSync } from 'child_process';
 
 
-function parseInputs(): GithubActionInputEntry[] {
+function parseInputs(subcommand: HelmSubcommand): GithubActionInputEntry[] {
     const result = GITHUB_ACTIONS_INPUT_CONFIGURATION.map((input: GithubActionInputEntry) => {
         if (input.value.value === undefined || input.value.value === "") {
             input.value.value = input.value.default;
         }
         input.value.value = parseValueByType(input);
-        validateInput(input);
+        validateInput(input, subcommand);
         return input;
     });
 
@@ -85,14 +85,13 @@ function cleanupFiles(inputs: GithubActionInputEntry[]) {
     })
 }
 
-function validateInput(input: GithubActionInputEntry): boolean {
+function validateInput(input: GithubActionInputEntry, subcommand: HelmSubcommand): boolean {
     // default case is already handled in `parseInputs`
     if (input.value.required && input.value.value === "") {
         throw Error(`${input.name} is required but has no (or empty) value`)
     }
 
-    // TODO
-    return true;
+    return subcommand in input.value.supported_subcommands;
 }
 
 function inputsToHelmFlags(inputs: GithubActionInputEntry[]): string[] {
@@ -131,11 +130,12 @@ function getInputsByType(type: GithubActionInputType, inputs: GithubActionInputE
 
 let inputs = null;
 try {
-    const subcommand = core.getInput("subcommand");
+    const rawSubcommand: string = core.getInput("subcommand");
+    const subcommand = rawSubcommand as HelmSubcommand;
     const rawCommand = core.getInput("raw_command");
 
-    inputs = parseInputs();
-    if (subcommand === "" && rawCommand === "") {
+    inputs = parseInputs(subcommand);
+    if (subcommand === HelmSubcommand.None && rawCommand === "") {
         throw Error("either `subcommand` or `raw_command` has to be set");
     }
     if (rawCommand !== "") {
@@ -151,7 +151,7 @@ try {
         const releaseName = getValueForName("release_name", inputs, "");
         const ref = getValueForName("ref", inputs);
         const flags = inputsToHelmFlags(inputs).join(" ");
-        const command = `helm ${subcommand} ${releaseName} ${ref} ${flags}`;
+        const command = `helm ${rawSubcommand} ${releaseName} ${ref} ${flags}`;
         console.log(`executing ${command}`);
         const stdout = execSync(command);
         console.log(stdout.toString());

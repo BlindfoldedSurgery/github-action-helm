@@ -1,7 +1,8 @@
 export enum HelmSubcommand {
-    All,
-    Install,
-    Upgrade
+    All = "all",
+    Install = "install",
+    Upgrade = "upgrade",
+    None = "",
 }
 
 export enum GithubActionInputType {
