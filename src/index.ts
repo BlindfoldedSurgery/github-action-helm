@@ -1,0 +1,151 @@
+const core = require('@actions/core');
+import { GITHUB_ACTIONS_INPUT_CONFIGURATION } from "./input_definitions";
+import { GithubActionInputEntry, GithubActionInputType } from "./models";
+import { writeTmpfile, deleteTmpfile } from "./tmpfile";
+import { execSync } from 'child_process';
+
+
+function parseInputs(): GithubActionInputEntry[] {
+    const result = GITHUB_ACTIONS_INPUT_CONFIGURATION.map((input: GithubActionInputEntry) => {
+        if (input.value.value === undefined || input.value.value === "") {
+            input.value.value = input.value.default;
+        }
+        input.value.value = parseValueByType(input);
+        validateInput(input);
+        return input;
+    });
+
+    const genName = getValueForName("generate_name", result);
+    const releaseName = getValueForName("release_name", result);
+
+    // a release name must be existent and these are the only two flags which can set it
+    if ((!genName && !releaseName) || (genName && releaseName)) {
+        throw Error("(only) one of `generate_name` or `release_name` must be set");
+    }
+
+    return handleFileInputs(result);
+}
+
+function parseValueByType(input: GithubActionInputEntry): string | boolean | number | undefined {
+    const value = core.getInput(input.name);
+    // requirement validation will be done in `validateInput`
+    if (value === "" || value === undefined) {
+        if (input.value.type === GithubActionInputType.Boolean) {
+            return false;
+        }
+
+        return input.value.value;
+    }
+
+    switch (input.value.type) {
+        case GithubActionInputType.Boolean:
+            if (input.value.value === false || input.value.value === true) {
+                return input.value.value;
+            }
+
+            const val = <string>input.value.value;
+            return val.toLowerCase() === "true";
+        case GithubActionInputType.Number:
+            return Number(value);
+        case GithubActionInputType.File:
+            return value;
+        case GithubActionInputType.Time:
+            return value;
+        case GithubActionInputType.String:
+            return value;
+    }
+}
+
+function handleFileInputs(inputs: GithubActionInputEntry[]): GithubActionInputEntry[] {
+    return inputs.map((entry: GithubActionInputEntry) => {
+        if (entry.value.type !== GithubActionInputType.File || entry.value.value === "") {
+            return entry;
+        }
+
+        const path = writeTmpfile(<string>entry.value.value);
+        entry.value.value = path;
+        return entry;
+    })
+}
+
+function cleanupFiles(inputs: GithubActionInputEntry[]) {
+    return inputs.forEach((entry: GithubActionInputEntry) => {
+        if (entry.value.type !== GithubActionInputType.File || entry.value.value === "") {
+            return entry;
+        }
+
+        deleteTmpfile(<string>entry.value.value);
+    })
+}
+
+function validateInput(input: GithubActionInputEntry): boolean {
+    // default case is already handled in `parseInputs`
+    if (input.value.required && input.value.value === "") {
+        throw Error(`${input.name} is required but has no (or empty) value`)
+    }
+
+    // TODO
+    return true;
+}
+
+function inputsToHelmFlags(inputs: GithubActionInputEntry[]): string[] {
+    return <string[]>inputs.map((input: GithubActionInputEntry) => {
+        const flag = `--${input.name.replace(/_/g, "-")}`
+        if (input.name === "ref" || input.name === "release_name") {
+            return undefined;
+        }
+        else if (input.value.type === GithubActionInputType.Boolean) {
+            if (input.value.value) {
+                return flag;
+            }
+        } else if (input.value.value !== "") {
+            const value = input.value.value || input.value.default;
+
+            return `${flag}=${value}`
+        } else {
+            return undefined;
+        }
+    }).filter((item) => item);
+}
+
+function getValueForName(name: string, inputs: GithubActionInputEntry[], def: string | undefined = undefined,): string | number | boolean | undefined {
+    const item = <GithubActionInputEntry>inputs.filter((item) => item.name === name)[0];
+
+    if (item === undefined) {
+        return def;
+    } else {
+        return parseValueByType(item);
+    }
+}
+
+let inputs = null;
+try {
+    const subcommand = core.getInput("subcommand");
+    const rawCommand = core.getInput("raw_command");
+
+    inputs = parseInputs();
+    if (subcommand === "" && rawCommand === "") {
+        throw Error("either `subcommand` or `raw_command` has to be set");
+    }
+    if (rawCommand !== "") {
+        const helmArgs = rawCommand.replace(/^helm /, '')
+        const command = `helm ${helmArgs}`
+        console.log(`executing ${command}`)
+        const stdout = execSync(command);
+        console.log(stdout);
+    } else {
+        const releaseName = getValueForName("release_name", inputs, "");
+        const ref = getValueForName("ref", inputs);
+        const flags = inputsToHelmFlags(inputs).join(" ");
+        const command = `helm ${subcommand} ${releaseName} ${ref} ${flags}`;
+        console.log(`executing ${command}`);
+        const stdout = execSync(command);
+        console.log(stdout.toString());
+    }
+} catch (error: any) {
+    core.setFailed(error.message);
+}
+
+if (inputs !== null) {
+    cleanupFiles(inputs);
+}

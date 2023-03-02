@@ -1,0 +1,5 @@
+export INPUT_SUBCOMMAND=upgrade
+export INPUT_REF=.
+export INPUT_RELEASE_NAME="test"
+export INPUT_GENERATE_NAME="false"
+export INPUT_KUBECONFIG="asd"

@@ -1,0 +1,198 @@
+name: "Helm"
+description: 'interact with helm'
+inputs:
+  # custom flags
+  subcommand:
+    description: "subcommand to use (currently supported: install/upgrade)"
+    required: false
+  raw_command:
+    description: "pass this string directly to the helm executable without any validation"
+    required: false
+  # global flags
+  burst_limit:
+    description: "client-side default throttling limit (default 100)"
+    required: false
+  debug:
+    description: "enable verbose output"
+    required: true
+    default: "false"
+  kube_apiserver:
+    description: "the address and the port for the Kubernetes API server"
+    required: false
+  kube_as_group:
+    description: "group to impersonate for the operation, this flag can be repeated to specify multiple groups."
+    required: false
+  kube_as_user:
+    description: "username to impersonate for the operation"
+    required: false
+  kube_ca_file:
+    description: "the certificate authority file for the Kubernetes API server connection"
+    required: false
+  kube_context:
+    description: "name of the kubeconfig context to use"
+    required: false
+  kube_insecure_skip_tls_verify:
+    description: "if true, the Kubernetes API server's certificate will not be checked for validity. This will make your HTTPS connections insecure"
+    required: false
+  kube_token:
+    description: "server name to use for Kubernetes API server certificate validation. If it is not provided, the hostname used to contact the server is used"
+    required: false
+  namespace:
+    description: "namespace scope for this request"
+    required: false
+  registry_config:
+    description: "path to the registry config file (default '$HOME/.config/helm/registry/config.json')"
+    required: false
+  repository_config:
+    description: "path to the file containing repository names and URLs (default '$HOME.config/helm/repositories.yaml')"
+    required: false
+  # subcommand specific flags
+  atomic:
+    description: "if set, the installation process deletes the installation on failure. The --wait flag will be set automatically if --atomic is used"
+    required: true
+    default: "false"
+  ca_file:
+    description: "verify certificates of HTTPS-enabled servers using this CA bundle"
+    required: false
+  cert_file:
+    description: "identify HTTPS client using this SSL certificate file"
+    required: false
+  cleanup_on_fail:
+    description: "allow deletion of new resources created in this upgrade when upgrade fails"
+    required: true
+    default: "false"
+  create_namespace:
+    description: "create the release namespace if not present"
+    required: true
+    default: "false"
+  dependency_update:
+    description: "update dependencies if they are missing before installing the chart"
+    required: true
+    default: "false"
+  description:
+    description: "add a custom description"
+    required: false
+  devel:
+    description: "use development versions, too. Equivalent to version '>0.0.0-0'. If --version is set, this is ignored"
+    required: true
+    default: "false"
+  disable_openapi_validation:
+    description: "if set, the installation process will not validate rendered templates against the Kubernetes OpenAPI Schem"
+    required: true
+    default: "false"
+  dry_run:
+    description: "simulate an install"
+    required: true
+    default: "false"
+  force:
+    description: "force resource updates through a replacement strategy"
+    required: true
+    default: "false"
+  generate_name:
+    description: "generate the name (and omit the NAME parameter)"
+    required: true
+    default: "false"
+  history_max:
+    description: "limit the maximum number of revisions saved per release. Use 0 for no limit (default 10)"
+    required: false
+  insecure_skip_tls_verify:
+    description: "skip tls certificate checks for the chart download"
+    required: true
+    default: "false"
+  install:
+    description: "if a release by this name doesn't already exist, run an install"
+    required: true
+    default: "false"
+  key_file:
+    description: "identify HTTPS client using this SSL key file"
+    required: false
+  keyring:
+    description: "identify HTTPS client using this SSL key file"
+    required: false
+  kubeconfig:
+    description: "path to the kubeconfig file"
+    required: false
+  name_template:
+    description: "specify template used to name the release"
+    required: false
+  no_hooks:
+    description: "prevent hooks from running during install"
+    required: true
+    default: "false"
+  output:
+    description: "prints the output in the specified format. Allowed values: table, json, yaml (default table)"
+    required: true
+    default: "table"
+  pass_credentials:
+    description: "pass credentials to all domains"
+    required: true
+    default: "false"
+  password:
+    description: "chart repository password where to locate the requested chart"
+    required: false
+    default: ""
+  ref:
+    description: "reference to a chart repository (e.g. url, absolute or relative path)"
+    required: true
+  release_name:
+    description: "name of the helm release"
+    required: false
+  render_subchart_notes:
+    description: "if set, render subchart notes along with the parent"
+    required: true
+    default: "false"
+  replace:
+    description: "re-use the given name, only if that name is a deleted release which remains in the history. This is unsafe in production"
+    required: true
+    default: "false"
+  repo_url:
+    description: "chart repository URL where to locate the requested chart"
+    required: false
+  reset_values:
+    description: "when upgrading, reset the values to the ones built into the chart"
+    required: false
+  reuse_values:
+    description: "when upgrading, reuse the last release's values and merge in any overrides from the command line via --set and -f. If '--reset-values' is specified, this is ignored"
+    required: false
+  set:
+    description: "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)"
+    required: false
+  set_file:
+    description: "set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)"
+    required: false
+  set_json:
+    description: "set JSON values on the command line (can specify multiple or separate values with commas: key1=jsonval1,key2=jsonval2)"
+    required: false
+  set_string:
+    description: "set STRING values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)"
+    required: false
+  skip_crds:
+    description: "if set, no CRDs will be installed when an upgrade is performed with install flag enabled. By default, CRDs are installed if not already present, when an upgrade is performed with install flag enabled"
+    required: true
+    default: "false"
+  timeout:
+    description: "time to wait for any individual Kubernetes operation (like Jobs for hooks) (default 5m0s)"
+    required: true
+    default: "5m0s"
+  username:
+    description: "chart repository username where to locate the requested chart"
+    required: false
+  values:
+    description: "specify values in a YAML file or a URL (can specify multiple)"
+    required: false
+  verify:
+    description: "verify the package before using it"
+    required: true
+    default: "false"
+  version:
+    description: "chart version to install. If this is not specified, the latest version is installed."
+    required: false
+  wait:
+    description: "if set, will wait until all Pods, PVCs, Services, and minimum number of Pods of a Deployment, StatefulSet, or ReplicaSet are in a ready state before marking the release as successful. It will wait for as long as --timeout"
+    required: false
+  wait_for_jobs:
+    description: "if set and --wait enabled, will wait until all Jobs have been completed before marking the release as successful. It will wait for as long as --timeout"
+    required: false
+runs:
+  using: 'node16'
+  main: 'src/index.js'
