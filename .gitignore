@@ -1,5 +1,6 @@
 .idea/
 *.iml
 
-node_modules/typescript/
-node_modules/@types/
+node_modules/
+
+src/*.js
