@@ -171,14 +171,17 @@ try {
 
         command = `${rawCommand} ${fileArgs}`
     } else {
-        const releaseName = getValueForName("release_name", inputs);
+        let releaseName = getInputEntry("release_name", inputs);
         const ref = getInputEntry("ref", inputs);
         if ((ref.value.value === "" || ref.value.value === undefined) && ref.value.supported_subcommands.includes(subcommand)) {
             throw Error(`'ref' has to be set for ${subcommand}`)
         }
+        if ((releaseName.value.value === "" || releaseName.value.value === undefined) && releaseName.value.supported_subcommands.includes(subcommand)) {
+            throw Error(`'releaseName' has to be set for ${subcommand}`)
+        }
 
         const flags = inputsToHelmFlags(inputs).join(" ");
-        command = `${rawSubcommand} ${releaseName} ${ref.value.value} ${flags}`;
+        command = `${rawSubcommand} ${releaseName.value.value} ${ref.value.value} ${flags}`;
     }
 
     executeHelm(command);
