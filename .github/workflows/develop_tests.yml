@@ -18,6 +18,19 @@ jobs:
           release_name: install-empty
           namespace: action-example
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
+      - uses: OpenAlcoholics/github-action-helm@develop
+        with:
+          subcommand: upgrade
+          ref: examples/install-empty
+          release_name: install-empty
+          namespace: action-example
+          kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
+      - uses: OpenAlcoholics/github-action-helm@develop
+        with:
+          subcommand: rollback
+          release_name: install-empty
+          namespace: action-example
+          kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
 
   cleanup:
     runs-on: ubuntu-latest

@@ -114,8 +114,9 @@ function inputsToHelmFlags(inputs: GithubActionInputEntry[]): string[] {
         const flag = `--${input.name.replace(/_/g, "-")}`
         if (input.name === "ref" || input.name === "release_name") {
             return undefined;
-        }
-        else if (input.value.type === GithubActionInputType.Boolean) {
+        } else if (input.name === "revision") {
+            return input.value.value;
+        } else if (input.value.type === GithubActionInputType.Boolean) {
             if (input.value.value) {
                 return flag;
             }

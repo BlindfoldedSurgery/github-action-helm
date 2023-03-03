@@ -3111,7 +3111,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Upgrade],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -3168,6 +3168,17 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade],
             type: models_1.GithubActionInputType.String,
+        },
+    },
+    {
+        name: 'revision',
+        value: {
+            description: "a revision (version) number. If this argument is omitted, it will roll back to the previous release",
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [models_1.HelmSubcommand.Rollback],
+            type: models_1.GithubActionInputType.Number,
         },
     },
     {
@@ -3617,6 +3628,9 @@ function inputsToHelmFlags(inputs) {
         const flag = `--${input.name.replace(/_/g, "-")}`;
         if (input.name === "ref" || input.name === "release_name") {
             return undefined;
+        }
+        else if (input.name === "revision") {
+            return input.value.value;
         }
         else if (input.value.type === models_1.GithubActionInputType.Boolean) {
             if (input.value.value) {

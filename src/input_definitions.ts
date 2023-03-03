@@ -416,7 +416,7 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install, HelmSubcommand.Upgrade],
+            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install, HelmSubcommand.Rollback],
             type: GithubActionInputType.String,
         },
     },
@@ -473,6 +473,17 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
             value: undefined,
             supported_subcommands: [HelmSubcommand.Upgrade],
             type: GithubActionInputType.String,
+        },
+    },
+    {
+        name: 'revision',
+        value: {
+            description: "a revision (version) number. If this argument is omitted, it will roll back to the previous release",
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.Rollback],
+            type: GithubActionInputType.Number,
         },
     },
     {
