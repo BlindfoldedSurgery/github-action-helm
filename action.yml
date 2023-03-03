@@ -134,6 +134,9 @@ inputs:
     description: "chart repository password where to locate the requested chart"
     required: false
     default: ""
+  recreate_pods:
+    description: "performs pods restart for the resource if applicable"
+    required: false
   ref:
     description: "reference to a chart repository (e.g. url, absolute or relative path)"
     required: true
