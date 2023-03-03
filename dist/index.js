@@ -3590,12 +3590,6 @@ function validateInput(input, subcommand) {
     const isSupportedSubcommand = input.value.supported_subcommands.includes(subcommand) || input.value.supported_subcommands.includes(models_1.HelmSubcommand.All);
     const hasValue = input.value.value !== "" && input.value.value !== undefined;
     const isFalseBoolean = input.value.type === models_1.GithubActionInputType.Boolean && input.value.value === false;
-    if (input.name === "kubeconfig") {
-        console.log(isSupportedSubcommand);
-        console.log(input.value.supported_subcommands.includes(models_1.HelmSubcommand.All));
-        console.log(models_1.HelmSubcommand.All);
-        console.log(input.value.supported_subcommands);
-    }
     // default case is already handled in `parseInputs`
     if (input.value.required && isSupportedSubcommand && !hasValue) {
         throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`);
