@@ -3620,6 +3620,14 @@ function getValueForName(name, inputs, def = undefined) {
 function getInputsByType(type, inputs) {
     return inputs.filter((item) => item.value.type === type);
 }
+function executeHelm(args) {
+    args = args.replace(/^ helm/, "");
+    const command = `helm ${args}`;
+    console.log(`executing ${command}`);
+    const stdout = (0, child_process_1.execSync)(command).toString();
+    console.log(stdout);
+    return stdout;
+}
 let inputs = null;
 try {
     const rawSubcommand = core.getInput("subcommand");
@@ -3629,24 +3637,19 @@ try {
     if (subcommand === models_1.HelmSubcommand.None && rawCommand === "") {
         throw Error("either `subcommand` or `raw_command` has to be set");
     }
+    let command = "";
     if (rawCommand !== "") {
         const fileInputs = getInputsByType(models_1.GithubActionInputType.File, inputs);
         const fileArgs = inputsToHelmFlags(fileInputs);
-        const helmArgs = rawCommand.replace(/^helm /, '');
-        const command = `helm ${helmArgs} ${fileArgs}`;
-        console.log(`executing ${command}`);
-        const stdout = (0, child_process_1.execSync)(command);
-        console.log(stdout);
+        command = `${rawCommand} ${fileArgs}`;
     }
     else {
         const releaseName = getValueForName("release_name", inputs, "");
         const ref = getValueForName("ref", inputs);
         const flags = inputsToHelmFlags(inputs).join(" ");
-        const command = `helm ${rawSubcommand} ${releaseName} ${ref} ${flags}`;
-        console.log(`executing ${command}`);
-        const stdout = (0, child_process_1.execSync)(command);
-        console.log(stdout);
+        command = `${rawSubcommand} ${releaseName} ${ref} ${flags}`;
     }
+    executeHelm(command);
 }
 catch (error) {
     core.setFailed(error.message);

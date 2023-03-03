@@ -133,6 +133,16 @@ function getInputsByType(type: GithubActionInputType, inputs: GithubActionInputE
     return inputs.filter((item: GithubActionInputEntry) => item.value.type === type)
 }
 
+function executeHelm(args: string): string {
+    args = args.replace(/^ helm/, "")
+    const command = `helm ${args}`;
+    console.log(`executing ${command}`)
+    const stdout = execSync(command).toString();
+    console.log(stdout);
+
+    return stdout;
+}
+
 let inputs = null;
 try {
     const rawSubcommand: string = core.getInput("subcommand");
@@ -143,24 +153,21 @@ try {
     if (subcommand === HelmSubcommand.None && rawCommand === "") {
         throw Error("either `subcommand` or `raw_command` has to be set");
     }
+    let command = "";
     if (rawCommand !== "") {
         const fileInputs = getInputsByType(GithubActionInputType.File, inputs);
         const fileArgs = inputsToHelmFlags(fileInputs);
 
-        const helmArgs = rawCommand.replace(/^helm /, '')
-        const command = `helm ${helmArgs} ${fileArgs}`
-        console.log(`executing ${command}`)
-        const stdout = execSync(command);
-        console.log(stdout);
+        command = `${rawCommand} ${fileArgs}`
     } else {
         const releaseName = getValueForName("release_name", inputs, "");
         const ref = getValueForName("ref", inputs);
         const flags = inputsToHelmFlags(inputs).join(" ");
-        const command = `helm ${rawSubcommand} ${releaseName} ${ref} ${flags}`;
-        console.log(`executing ${command}`);
-        const stdout = execSync(command);
-        console.log(stdout);
+        command = `${rawSubcommand} ${releaseName} ${ref} ${flags}`;
     }
+
+    executeHelm(command);
+
 } catch (error: any) {
     core.setFailed(error.message);
 }
