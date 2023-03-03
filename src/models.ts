@@ -1,6 +1,7 @@
 export enum HelmSubcommand {
     All = "all",
     Install = "install",
+    Uninstall = "uninstall",
     Upgrade = "upgrade",
     None = "",
 }

@@ -2913,7 +2913,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -2946,7 +2946,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: true,
             default: 'false',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
             type: models_1.GithubActionInputType.Boolean,
         },
     },
@@ -3045,7 +3045,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: true,
             default: 'false',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
             type: models_1.GithubActionInputType.Boolean,
         },
     },
@@ -3221,7 +3221,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: true,
             default: '5m0s',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -3276,7 +3276,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -3307,6 +3307,7 @@ var HelmSubcommand;
 (function (HelmSubcommand) {
     HelmSubcommand["All"] = "all";
     HelmSubcommand["Install"] = "install";
+    HelmSubcommand["Uninstall"] = "uninstall";
     HelmSubcommand["Upgrade"] = "upgrade";
     HelmSubcommand["None"] = "";
 })(HelmSubcommand = exports.HelmSubcommand || (exports.HelmSubcommand = {}));
@@ -3520,6 +3521,7 @@ function parseInputs(subcommand) {
     });
     const genName = getValueForName("generate_name", result);
     const releaseName = getValueForName("release_name", result);
+    // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
     // a release name must be existent and these are the only two flags which can set it
     if (((!genName && !releaseName) || (genName && releaseName)) && subcommand !== models_1.HelmSubcommand.None) {
         throw Error("(only) one of `generate_name` or `release_name` must be set");

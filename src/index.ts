@@ -19,6 +19,7 @@ function parseInputs(subcommand: HelmSubcommand): GithubActionInputEntry[] {
     const genName = getValueForName("generate_name", result);
     const releaseName = getValueForName("release_name", result);
 
+    // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
     // a release name must be existent and these are the only two flags which can set it
     if (((!genName && !releaseName) || (genName && releaseName)) && subcommand !== HelmSubcommand.None) {
         throw Error("(only) one of `generate_name` or `release_name` must be set");
