@@ -3587,14 +3587,9 @@ function validateInput(input, subcommand) {
     if (subcommand === models_1.HelmSubcommand.None && input.value.type !== models_1.GithubActionInputType.File) {
         return true;
     }
-    const isSupportedSubcommand = subcommand in input.value.supported_subcommands;
+    const isSupportedSubcommand = (subcommand in input.value.supported_subcommands) || models_1.HelmSubcommand.All in input.value.supported_subcommands;
     const hasValue = input.value.value !== "" && input.value.value !== undefined;
     const isFalseBoolean = input.value.type === models_1.GithubActionInputType.Boolean && input.value.value === false;
-    if (input.name === "ref") {
-        console.log(isSupportedSubcommand);
-        console.log(hasValue);
-        console.log(isFalseBoolean);
-    }
     // default case is already handled in `parseInputs`
     if (input.value.required && isSupportedSubcommand && !hasValue) {
         throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`);

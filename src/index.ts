@@ -94,7 +94,7 @@ function validateInput(input: GithubActionInputEntry, subcommand: HelmSubcommand
     if (subcommand === HelmSubcommand.None && input.value.type !== GithubActionInputType.File) {
         return true;
     }
-    const isSupportedSubcommand = subcommand in input.value.supported_subcommands;
+    const isSupportedSubcommand = (subcommand in input.value.supported_subcommands) || HelmSubcommand.All in input.value.supported_subcommands;
     const hasValue = input.value.value !== "" && input.value.value !== undefined;
     const isFalseBoolean = input.value.type === GithubActionInputType.Boolean && input.value.value === false;
 
