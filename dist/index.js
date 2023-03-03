@@ -2880,7 +2880,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: true,
             default: 'false',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
         },
     },
@@ -2946,7 +2946,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: true,
             default: 'false',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
         },
     },
@@ -2957,7 +2957,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: true,
             default: 'false',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
         },
     },
@@ -2979,7 +2979,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -3045,7 +3045,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: true,
             default: 'false',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
         },
     },
@@ -3064,8 +3064,8 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'pass_credentials',
         value: {
             description: 'pass credentials to all domains',
-            required: true,
-            default: 'false',
+            required: false,
+            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3079,6 +3079,17 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            type: models_1.GithubActionInputType.String,
+        },
+    },
+    {
+        name: 'recreate_pods',
+        value: {
+            description: 'performs pods restart for the resource if applicable',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -3100,7 +3111,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Upgrade],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -3221,7 +3232,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -3276,7 +3287,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -3287,7 +3298,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
         },
     }
@@ -3309,6 +3320,7 @@ var HelmSubcommand;
     HelmSubcommand["Install"] = "install";
     HelmSubcommand["Uninstall"] = "uninstall";
     HelmSubcommand["Upgrade"] = "upgrade";
+    HelmSubcommand["Rollback"] = "rollback";
     HelmSubcommand["None"] = "";
 })(HelmSubcommand = exports.HelmSubcommand || (exports.HelmSubcommand = {}));
 var GithubActionInputType;
