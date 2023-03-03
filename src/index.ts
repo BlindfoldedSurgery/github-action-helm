@@ -150,7 +150,7 @@ function getInputsByType(type: GithubActionInputType, inputs: GithubActionInputE
 }
 
 function executeHelm(args: string): string {
-    args = args.replace(/^ helm/, "")
+    args = args.replace(/^helm /, "")
     const command = `helm ${args}`;
     console.log(`executing ${command}`)
     const stdout = execSync(command).toString();

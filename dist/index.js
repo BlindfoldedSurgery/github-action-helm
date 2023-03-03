@@ -3637,7 +3637,7 @@ function getInputsByType(type, inputs) {
     return inputs.filter((item) => item.value.type === type);
 }
 function executeHelm(args) {
-    args = args.replace(/^ helm/, "");
+    args = args.replace(/^helm /, "");
     const command = `helm ${args}`;
     console.log(`executing ${command}`);
     const stdout = (0, child_process_1.execSync)(command).toString();
