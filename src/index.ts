@@ -20,7 +20,7 @@ function parseInputs(subcommand: HelmSubcommand): GithubActionInputEntry[] {
     const releaseName = getValueForName("release_name", result);
 
     // a release name must be existent and these are the only two flags which can set it
-    if ((!genName && !releaseName) || (genName && releaseName)) {
+    if (((!genName && !releaseName) || (genName && releaseName)) && subcommand !== HelmSubcommand.None) {
         throw Error("(only) one of `generate_name` or `release_name` must be set");
     }
 
@@ -86,12 +86,17 @@ function cleanupFiles(inputs: GithubActionInputEntry[]) {
 }
 
 function validateInput(input: GithubActionInputEntry, subcommand: HelmSubcommand): boolean {
+    // since we support files for the subcommand, we should stil
+    if (subcommand === HelmSubcommand.None && input.value.type !== GithubActionInputType.File) {
+        return true;
+    }
+
     // default case is already handled in `parseInputs`
     if (input.value.required && input.value.value === "") {
         throw Error(`${input.name} is required but has no (or empty) value`)
     }
 
-    return subcommand in input.value.supported_subcommands;
+    return (subcommand in input.value.supported_subcommands) || subcommand === HelmSubcommand.None;
 }
 
 function inputsToHelmFlags(inputs: GithubActionInputEntry[]): string[] {
@@ -154,7 +159,7 @@ try {
         const command = `helm ${rawSubcommand} ${releaseName} ${ref} ${flags}`;
         console.log(`executing ${command}`);
         const stdout = execSync(command);
-        console.log(stdout.toString());
+        console.log(stdout);
     }
 } catch (error: any) {
     core.setFailed(error.message);
