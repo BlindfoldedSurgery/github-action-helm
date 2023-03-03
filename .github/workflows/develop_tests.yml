@@ -1,0 +1,29 @@
+name: Build and deploy
+
+on:
+  push:
+    branches:
+      - 'develop'
+  pull_request:
+
+jobs:
+  test_against_develop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: OpenAlcoholics/github-action-helm@develop
+        with:
+          subcommand: install
+          ref: examples/install-empty
+          release_name: install-empty
+          namespace: action-example
+          kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
+
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: test_against_develop
+    steps:
+      - uses: OpenAlcoholics/github-action-helm@develop
+        with:
+          raw_command: uninstall -n action-example install-empty
+          kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
