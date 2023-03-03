@@ -407,6 +407,7 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
             value: undefined,
             supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install],
             type: GithubActionInputType.String,
+            priority: 10
         },
     },
     {
@@ -418,6 +419,7 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
             value: undefined,
             supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install, HelmSubcommand.Rollback],
             type: GithubActionInputType.String,
+            priority: 11
         },
     },
     {

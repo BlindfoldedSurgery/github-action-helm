@@ -3535,6 +3535,14 @@ const input_definitions_1 = __nccwpck_require__(275);
 const models_1 = __nccwpck_require__(165);
 const tmpfile_1 = __nccwpck_require__(518);
 const child_process_1 = __nccwpck_require__(81);
+function getPriority(input) {
+    if (input.value.priority === undefined) {
+        return 0;
+    }
+    else {
+        return input.value.priority;
+    }
+}
 function parseInputs(subcommand) {
     const result = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION.map((input) => {
         if (input.value.value === undefined || input.value.value === "") {
@@ -3554,7 +3562,8 @@ function parseInputs(subcommand) {
             throw Error("(only) one of `generate_name` or `release_name` must be set");
         }
     }
-    return handleFileInputs(result);
+    return handleFileInputs(result)
+        .sort((item1, item2) => getPriority(item2) - getPriority(item1));
 }
 function parseValueByType(input) {
     const value = core.getInput(input.name);
@@ -3628,10 +3637,7 @@ function validateInput(input, subcommand) {
 function inputsToHelmFlags(inputs) {
     return inputs.map((input) => {
         const flag = `--${input.name.replace(/_/g, "-")}`;
-        if (input.name === "ref" || input.name === "release_name") {
-            return undefined;
-        }
-        else if (input.name === "revision") {
+        if (input.name === "ref" || input.name === "release_name" || input.name === "revision") {
             return input.value.value;
         }
         else if (input.value.type === models_1.GithubActionInputType.Boolean) {
@@ -3682,16 +3688,8 @@ try {
         command = `${rawCommand} ${fileArgs}`;
     }
     else {
-        let releaseName = getInputEntry("release_name", inputs);
-        const ref = getInputEntry("ref", inputs);
-        if ((ref.value.value === "" || ref.value.value === undefined) && ref.value.supported_subcommands.includes(subcommand)) {
-            throw Error(`'ref' has to be set for ${subcommand}`);
-        }
-        if ((releaseName.value.value === "" || releaseName.value.value === undefined) && releaseName.value.supported_subcommands.includes(subcommand)) {
-            throw Error(`'releaseName' has to be set for ${subcommand}`);
-        }
         const flags = inputsToHelmFlags(inputs).join(" ");
-        command = `${rawSubcommand} ${releaseName.value.value} ${ref.value.value} ${flags}`;
+        command = `${rawSubcommand} ${flags}`;
     }
     executeHelm(command);
 }
