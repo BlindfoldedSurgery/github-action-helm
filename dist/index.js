@@ -3054,7 +3054,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         value: {
             description: 'prints the output in the specified format. Allowed values: table, json, yaml (default table)',
             required: true,
-            default: 'table',
+            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
@@ -3219,7 +3219,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         value: {
             description: 'time to wait for any individual Kubernetes operation (like Jobs for hooks) (default 5m0s)',
             required: true,
-            default: '5m0s',
+            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
             type: models_1.GithubActionInputType.String,
