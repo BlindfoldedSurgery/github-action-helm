@@ -2913,7 +2913,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -2946,7 +2946,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: true,
             default: 'false',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
             type: models_1.GithubActionInputType.Boolean,
         },
     },
@@ -3045,7 +3045,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: true,
             default: 'false',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
             type: models_1.GithubActionInputType.Boolean,
         },
     },
@@ -3053,8 +3053,8 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'output',
         value: {
             description: 'prints the output in the specified format. Allowed values: table, json, yaml (default table)',
-            required: true,
-            default: 'table',
+            required: false,
+            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
@@ -3218,10 +3218,10 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'timeout',
         value: {
             description: 'time to wait for any individual Kubernetes operation (like Jobs for hooks) (default 5m0s)',
-            required: true,
-            default: '5m0s',
+            required: false,
+            default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -3276,7 +3276,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -3307,6 +3307,7 @@ var HelmSubcommand;
 (function (HelmSubcommand) {
     HelmSubcommand["All"] = "all";
     HelmSubcommand["Install"] = "install";
+    HelmSubcommand["Uninstall"] = "uninstall";
     HelmSubcommand["Upgrade"] = "upgrade";
     HelmSubcommand["None"] = "";
 })(HelmSubcommand = exports.HelmSubcommand || (exports.HelmSubcommand = {}));
@@ -3519,10 +3520,14 @@ function parseInputs(subcommand) {
         return input;
     });
     const genName = getValueForName("generate_name", result);
-    const releaseName = getValueForName("release_name", result);
+    const releaseName = getInputEntry("release_name", result);
+    const releaseNameValue = releaseName.value.value;
+    // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
     // a release name must be existent and these are the only two flags which can set it
-    if (((!genName && !releaseName) || (genName && releaseName)) && subcommand !== models_1.HelmSubcommand.None) {
-        throw Error("(only) one of `generate_name` or `release_name` must be set");
+    if (((!genName && !releaseNameValue) || (genName && releaseNameValue)) && subcommand !== models_1.HelmSubcommand.None) {
+        if (releaseName.value.supported_subcommands.includes(subcommand)) {
+            throw Error("(only) one of `generate_name` or `release_name` must be set");
+        }
     }
     return handleFileInputs(result);
 }
@@ -3582,11 +3587,18 @@ function validateInput(input, subcommand) {
     if (subcommand === models_1.HelmSubcommand.None && input.value.type !== models_1.GithubActionInputType.File) {
         return true;
     }
+    const isSupportedSubcommand = input.value.supported_subcommands.includes(subcommand) || input.value.supported_subcommands.includes(models_1.HelmSubcommand.All);
+    const hasValue = input.value.value !== "" && input.value.value !== undefined;
+    const isFalseBoolean = input.value.type === models_1.GithubActionInputType.Boolean && input.value.value === false;
     // default case is already handled in `parseInputs`
-    if (input.value.required && input.value.value === "") {
-        throw Error(`${input.name} is required but has no (or empty) value`);
+    if (input.value.required && isSupportedSubcommand && !hasValue) {
+        throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`);
     }
-    return (subcommand in input.value.supported_subcommands) || subcommand === models_1.HelmSubcommand.None;
+    else if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
+        // boolean is set to false by default and will not be passed as a flag
+        throw Error(`${input.name} is not supported for ${subcommand}`);
+    }
+    return isSupportedSubcommand || subcommand === models_1.HelmSubcommand.None;
 }
 function inputsToHelmFlags(inputs) {
     return inputs.map((input) => {
@@ -3608,20 +3620,18 @@ function inputsToHelmFlags(inputs) {
         }
     }).filter((item) => item);
 }
-function getValueForName(name, inputs, def = undefined) {
-    const item = inputs.filter((item) => item.name === name)[0];
-    if (item === undefined) {
-        return def;
-    }
-    else {
-        return parseValueByType(item);
-    }
+function getInputEntry(name, inputs) {
+    return inputs.find((item) => item.name === name);
+}
+function getValueForName(name, inputs) {
+    const item = getInputEntry(name, inputs);
+    return item.value.value;
 }
 function getInputsByType(type, inputs) {
     return inputs.filter((item) => item.value.type === type);
 }
 function executeHelm(args) {
-    args = args.replace(/^ helm/, "");
+    args = args.replace(/^helm /, "");
     const command = `helm ${args}`;
     console.log(`executing ${command}`);
     const stdout = (0, child_process_1.execSync)(command).toString();
@@ -3644,10 +3654,13 @@ try {
         command = `${rawCommand} ${fileArgs}`;
     }
     else {
-        const releaseName = getValueForName("release_name", inputs, "");
-        const ref = getValueForName("ref", inputs);
+        const releaseName = getValueForName("release_name", inputs);
+        const ref = getInputEntry("ref", inputs);
+        if ((ref.value.value === "" || ref.value.value === undefined) && ref.value.supported_subcommands.includes(subcommand)) {
+            throw Error(`'ref' has to be set for ${subcommand}`);
+        }
         const flags = inputsToHelmFlags(inputs).join(" ");
-        command = `${rawSubcommand} ${releaseName} ${ref} ${flags}`;
+        command = `${rawSubcommand} ${releaseName} ${ref.value.value} ${flags}`;
     }
     executeHelm(command);
 }

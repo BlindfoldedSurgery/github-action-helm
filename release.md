@@ -1,6 +1,5 @@
-v0.1.2
-===
+Adds support for `uninstall`
 
-properly support the `raw_subcommand` input.
+Several bugfixes for how inputs are handled.
 
-Before this release the `raw_subcommand` still required that inputs integrity would uphold despite ignoring these inputs.
+This now validates that only supported input parameters are passed to a command (e.g. `atomic` can't be passed to `uninstall`)
