@@ -17,12 +17,15 @@ function parseInputs(subcommand: HelmSubcommand): GithubActionInputEntry[] {
     });
 
     const genName = getValueForName("generate_name", result);
-    const releaseName = getValueForName("release_name", result);
+    const releaseName = getInputEntry("release_name", result);
+    const releaseNameValue = releaseName.value.value;
 
     // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
     // a release name must be existent and these are the only two flags which can set it
-    if (((!genName && !releaseName) || (genName && releaseName)) && subcommand !== HelmSubcommand.None) {
-        throw Error("(only) one of `generate_name` or `release_name` must be set");
+    if (((!genName && !releaseNameValue) || (genName && releaseNameValue)) && subcommand !== HelmSubcommand.None) {
+        if (subcommand in releaseName.value.supported_subcommands) {
+            throw Error("(only) one of `generate_name` or `release_name` must be set");
+        }
     }
 
     return handleFileInputs(result);
@@ -91,13 +94,19 @@ function validateInput(input: GithubActionInputEntry, subcommand: HelmSubcommand
     if (subcommand === HelmSubcommand.None && input.value.type !== GithubActionInputType.File) {
         return true;
     }
+    const isSupportedSubcommand = subcommand in input.value.supported_subcommands;
+    const hasValue = input.value.value !== "" && input.value.value !== undefined;
+    const isFalseBoolean = input.value.type === GithubActionInputType.Boolean && input.value.value === false;
 
     // default case is already handled in `parseInputs`
-    if (input.value.required && input.value.value === "") {
-        throw Error(`${input.name} is required but has no (or empty) value`)
+    if (input.value.required && isSupportedSubcommand && !hasValue) {
+        throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`)
+    } else if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
+        // boolean is set to false by default and will not be passed as a flag
+        throw Error(`${input.name} is not supported for ${subcommand}`);
     }
 
-    return (subcommand in input.value.supported_subcommands) || subcommand === HelmSubcommand.None;
+    return isSupportedSubcommand || subcommand === HelmSubcommand.None;
 }
 
 function inputsToHelmFlags(inputs: GithubActionInputEntry[]): string[] {
@@ -120,14 +129,14 @@ function inputsToHelmFlags(inputs: GithubActionInputEntry[]): string[] {
     }).filter((item) => item);
 }
 
-function getValueForName(name: string, inputs: GithubActionInputEntry[], def: string | undefined = undefined,): string | number | boolean | undefined {
-    const item = <GithubActionInputEntry>inputs.filter((item) => item.name === name)[0];
+function getInputEntry(name: string, inputs: GithubActionInputEntry[]): GithubActionInputEntry {
+    return <GithubActionInputEntry>inputs.find((item) => item.name === name);
+}
 
-    if (item === undefined) {
-        return def;
-    } else {
-        return parseValueByType(item);
-    }
+function getValueForName(name: string, inputs: GithubActionInputEntry[]): string | number | boolean | undefined {
+    const item = getInputEntry(name, inputs);
+
+    return item.value.value;
 }
 
 function getInputsByType(type: GithubActionInputType, inputs: GithubActionInputEntry[]): GithubActionInputEntry[] {
@@ -161,10 +170,14 @@ try {
 
         command = `${rawCommand} ${fileArgs}`
     } else {
-        const releaseName = getValueForName("release_name", inputs, "");
-        const ref = getValueForName("ref", inputs);
+        const releaseName = getValueForName("release_name", inputs);
+        const ref = getInputEntry("ref", inputs);
+        if (subcommand in ref.value.supported_subcommands) {
+            throw Error(`'ref' has to be set for ${subcommand}`)
+        }
+
         const flags = inputsToHelmFlags(inputs).join(" ");
-        command = `${rawSubcommand} ${releaseName} ${ref} ${flags}`;
+        command = `${rawSubcommand} ${releaseName} ${ref.value.value} ${flags}`;
     }
 
     executeHelm(command);

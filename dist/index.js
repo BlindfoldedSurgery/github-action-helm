@@ -3520,11 +3520,14 @@ function parseInputs(subcommand) {
         return input;
     });
     const genName = getValueForName("generate_name", result);
-    const releaseName = getValueForName("release_name", result);
+    const releaseName = getInputEntry("release_name", result);
+    const releaseNameValue = releaseName.value.value;
     // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
     // a release name must be existent and these are the only two flags which can set it
-    if (((!genName && !releaseName) || (genName && releaseName)) && subcommand !== models_1.HelmSubcommand.None) {
-        throw Error("(only) one of `generate_name` or `release_name` must be set");
+    if (((!genName && !releaseNameValue) || (genName && releaseNameValue)) && subcommand !== models_1.HelmSubcommand.None) {
+        if (subcommand in releaseName.value.supported_subcommands) {
+            throw Error("(only) one of `generate_name` or `release_name` must be set");
+        }
     }
     return handleFileInputs(result);
 }
@@ -3584,11 +3587,23 @@ function validateInput(input, subcommand) {
     if (subcommand === models_1.HelmSubcommand.None && input.value.type !== models_1.GithubActionInputType.File) {
         return true;
     }
-    // default case is already handled in `parseInputs`
-    if (input.value.required && input.value.value === "") {
-        throw Error(`${input.name} is required but has no (or empty) value`);
+    const isSupportedSubcommand = subcommand in input.value.supported_subcommands;
+    const hasValue = input.value.value !== "" && input.value.value !== undefined;
+    const isFalseBoolean = input.value.type === models_1.GithubActionInputType.Boolean && input.value.value === false;
+    if (input.name === "ref") {
+        console.log(isSupportedSubcommand);
+        console.log(hasValue);
+        console.log(isFalseBoolean);
     }
-    return (subcommand in input.value.supported_subcommands) || subcommand === models_1.HelmSubcommand.None;
+    // default case is already handled in `parseInputs`
+    if (input.value.required && isSupportedSubcommand && !hasValue) {
+        throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`);
+    }
+    else if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
+        // boolean is set to false by default and will not be passed as a flag
+        throw Error(`${input.name} is not supported for ${subcommand}`);
+    }
+    return isSupportedSubcommand || subcommand === models_1.HelmSubcommand.None;
 }
 function inputsToHelmFlags(inputs) {
     return inputs.map((input) => {
@@ -3610,14 +3625,12 @@ function inputsToHelmFlags(inputs) {
         }
     }).filter((item) => item);
 }
-function getValueForName(name, inputs, def = undefined) {
-    const item = inputs.filter((item) => item.name === name)[0];
-    if (item === undefined) {
-        return def;
-    }
-    else {
-        return parseValueByType(item);
-    }
+function getInputEntry(name, inputs) {
+    return inputs.find((item) => item.name === name);
+}
+function getValueForName(name, inputs) {
+    const item = getInputEntry(name, inputs);
+    return item.value.value;
 }
 function getInputsByType(type, inputs) {
     return inputs.filter((item) => item.value.type === type);
@@ -3646,10 +3659,13 @@ try {
         command = `${rawCommand} ${fileArgs}`;
     }
     else {
-        const releaseName = getValueForName("release_name", inputs, "");
-        const ref = getValueForName("ref", inputs);
+        const releaseName = getValueForName("release_name", inputs);
+        const ref = getInputEntry("ref", inputs);
+        if (subcommand in ref.value.supported_subcommands) {
+            throw Error(`'ref' has to be set for ${subcommand}`);
+        }
         const flags = inputsToHelmFlags(inputs).join(" ");
-        command = `${rawSubcommand} ${releaseName} ${ref} ${flags}`;
+        command = `${rawSubcommand} ${releaseName} ${ref.value.value} ${flags}`;
     }
     executeHelm(command);
 }
