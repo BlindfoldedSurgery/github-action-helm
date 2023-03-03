@@ -3053,7 +3053,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'output',
         value: {
             description: 'prints the output in the specified format. Allowed values: table, json, yaml (default table)',
-            required: true,
+            required: false,
             default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
@@ -3218,7 +3218,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'timeout',
         value: {
             description: 'time to wait for any individual Kubernetes operation (like Jobs for hooks) (default 5m0s)',
-            required: true,
+            required: false,
             default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
@@ -3525,7 +3525,7 @@ function parseInputs(subcommand) {
     // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
     // a release name must be existent and these are the only two flags which can set it
     if (((!genName && !releaseNameValue) || (genName && releaseNameValue)) && subcommand !== models_1.HelmSubcommand.None) {
-        if (subcommand in releaseName.value.supported_subcommands) {
+        if (releaseName.value.supported_subcommands.includes(subcommand)) {
             throw Error("(only) one of `generate_name` or `release_name` must be set");
         }
     }
@@ -3587,9 +3587,15 @@ function validateInput(input, subcommand) {
     if (subcommand === models_1.HelmSubcommand.None && input.value.type !== models_1.GithubActionInputType.File) {
         return true;
     }
-    const isSupportedSubcommand = (subcommand in input.value.supported_subcommands) || models_1.HelmSubcommand.All in input.value.supported_subcommands;
+    const isSupportedSubcommand = input.value.supported_subcommands.includes(subcommand) || input.value.supported_subcommands.includes(models_1.HelmSubcommand.All);
     const hasValue = input.value.value !== "" && input.value.value !== undefined;
     const isFalseBoolean = input.value.type === models_1.GithubActionInputType.Boolean && input.value.value === false;
+    if (input.name === "kubeconfig") {
+        console.log(isSupportedSubcommand);
+        console.log(input.value.supported_subcommands.includes(models_1.HelmSubcommand.All));
+        console.log(models_1.HelmSubcommand.All);
+        console.log(input.value.supported_subcommands);
+    }
     // default case is already handled in `parseInputs`
     if (input.value.required && isSupportedSubcommand && !hasValue) {
         throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`);
@@ -3656,7 +3662,7 @@ try {
     else {
         const releaseName = getValueForName("release_name", inputs);
         const ref = getInputEntry("ref", inputs);
-        if (subcommand in ref.value.supported_subcommands) {
+        if ((ref.value.value === "" || ref.value.value === undefined) && ref.value.supported_subcommands.includes(subcommand)) {
             throw Error(`'ref' has to be set for ${subcommand}`);
         }
         const flags = inputsToHelmFlags(inputs).join(" ");

@@ -23,7 +23,7 @@ function parseInputs(subcommand: HelmSubcommand): GithubActionInputEntry[] {
     // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
     // a release name must be existent and these are the only two flags which can set it
     if (((!genName && !releaseNameValue) || (genName && releaseNameValue)) && subcommand !== HelmSubcommand.None) {
-        if (subcommand in releaseName.value.supported_subcommands) {
+        if (releaseName.value.supported_subcommands.includes(subcommand)) {
             throw Error("(only) one of `generate_name` or `release_name` must be set");
         }
     }
@@ -94,10 +94,16 @@ function validateInput(input: GithubActionInputEntry, subcommand: HelmSubcommand
     if (subcommand === HelmSubcommand.None && input.value.type !== GithubActionInputType.File) {
         return true;
     }
-    const isSupportedSubcommand = (subcommand in input.value.supported_subcommands) || HelmSubcommand.All in input.value.supported_subcommands;
+    const isSupportedSubcommand = input.value.supported_subcommands.includes(subcommand) || input.value.supported_subcommands.includes(HelmSubcommand.All);
     const hasValue = input.value.value !== "" && input.value.value !== undefined;
     const isFalseBoolean = input.value.type === GithubActionInputType.Boolean && input.value.value === false;
 
+    if (input.name === "kubeconfig") {
+        console.log(isSupportedSubcommand);
+        console.log(input.value.supported_subcommands.includes(HelmSubcommand.All));
+        console.log(HelmSubcommand.All);
+        console.log(input.value.supported_subcommands);
+    }
     // default case is already handled in `parseInputs`
     if (input.value.required && isSupportedSubcommand && !hasValue) {
         throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`)
@@ -172,7 +178,7 @@ try {
     } else {
         const releaseName = getValueForName("release_name", inputs);
         const ref = getInputEntry("ref", inputs);
-        if (subcommand in ref.value.supported_subcommands) {
+        if ((ref.value.value === "" || ref.value.value === undefined) && ref.value.supported_subcommands.includes(subcommand)) {
             throw Error(`'ref' has to be set for ${subcommand}`)
         }
 

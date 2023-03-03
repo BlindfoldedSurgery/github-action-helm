@@ -358,7 +358,7 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
         name: 'output',
         value: {
             description: 'prints the output in the specified format. Allowed values: table, json, yaml (default table)',
-            required: true,
+            required: false,
             default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install],
@@ -523,7 +523,7 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
         name: 'timeout',
         value: {
             description: 'time to wait for any individual Kubernetes operation (like Jobs for hooks) (default 5m0s)',
-            required: true,
+            required: false,
             default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install, HelmSubcommand.Uninstall],
