@@ -3102,6 +3102,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
+            priority: 10
         },
     },
     {
@@ -3113,6 +3114,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
+            priority: 11
         },
     },
     {

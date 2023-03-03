@@ -21,7 +21,8 @@ export type GithubActionInputEntryData = {
     default: string
     value: string | boolean | number | undefined
     supported_subcommands: HelmSubcommand[],
-    type: GithubActionInputType
+    type: GithubActionInputType,
+    priority?: number
 };
 
 export type GithubActionInputEntry = {
