@@ -5,6 +5,13 @@ import { GithubActionInputEntry, GithubActionInputType, HelmSubcommand } from ".
 import { writeTmpfile, deleteTmpfile } from "./tmpfile";
 import { execSync } from 'child_process';
 
+function getPriority(input: GithubActionInputEntry): number {
+    if (input.value.priority === undefined) {
+        return 0;
+    } else {
+        return input.value.priority;
+    }
+}
 
 function parseInputs(subcommand: HelmSubcommand): GithubActionInputEntry[] {
     const result = GITHUB_ACTIONS_INPUT_CONFIGURATION.map((input: GithubActionInputEntry) => {
@@ -28,7 +35,8 @@ function parseInputs(subcommand: HelmSubcommand): GithubActionInputEntry[] {
         }
     }
 
-    return handleFileInputs(result);
+    return handleFileInputs(result)
+            .sort((item1, item2) => getPriority(item2) - getPriority(item1));
 }
 
 function parseValueByType(input: GithubActionInputEntry): string | boolean | number | undefined {
@@ -112,10 +120,9 @@ function validateInput(input: GithubActionInputEntry, subcommand: HelmSubcommand
 function inputsToHelmFlags(inputs: GithubActionInputEntry[]): string[] {
     return <string[]>inputs.map((input: GithubActionInputEntry) => {
         const flag = `--${input.name.replace(/_/g, "-")}`
-        if (input.name === "ref" || input.name === "release_name") {
-            return undefined;
-        }
-        else if (input.value.type === GithubActionInputType.Boolean) {
+        if (input.name === "ref" || input.name === "release_name" || input.name === "revision") {
+            return input.value.value;
+        } else if (input.value.type === GithubActionInputType.Boolean) {
             if (input.value.value) {
                 return flag;
             }
@@ -170,14 +177,8 @@ try {
 
         command = `${rawCommand} ${fileArgs}`
     } else {
-        const releaseName = getValueForName("release_name", inputs);
-        const ref = getInputEntry("ref", inputs);
-        if ((ref.value.value === "" || ref.value.value === undefined) && ref.value.supported_subcommands.includes(subcommand)) {
-            throw Error(`'ref' has to be set for ${subcommand}`)
-        }
-
         const flags = inputsToHelmFlags(inputs).join(" ");
-        command = `${rawSubcommand} ${releaseName} ${ref.value.value} ${flags}`;
+        command = `${rawSubcommand} ${flags}`;
     }
 
     executeHelm(command);

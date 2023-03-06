@@ -8,7 +8,7 @@ Any input which helm interacts with as a file (e.g. `kubeconfig`) will be writte
 
 ## Example
 
-examples can be found in [github-action-helm-examples](https://github.com/openalcoholics/github-action-helm-examples)
+examples can be found in the `examples/` directory
 
 ```yaml
 deploy:

@@ -2880,7 +2880,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: true,
             default: 'false',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
         },
     },
@@ -2946,7 +2946,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: true,
             default: 'false',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
         },
     },
@@ -2957,7 +2957,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: true,
             default: 'false',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
         },
     },
@@ -2979,7 +2979,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -3045,7 +3045,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: true,
             default: 'false',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
         },
     },
@@ -3064,8 +3064,8 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'pass_credentials',
         value: {
             description: 'pass credentials to all domains',
-            required: true,
-            default: 'false',
+            required: false,
+            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3083,6 +3083,17 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         },
     },
     {
+        name: 'recreate_pods',
+        value: {
+            description: 'performs pods restart for the resource if applicable',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [models_1.HelmSubcommand.Rollback],
+            type: models_1.GithubActionInputType.String,
+        },
+    },
+    {
         name: 'ref',
         value: {
             description: 'reference to a chart repository (e.g. url, absolute or relative path)',
@@ -3091,6 +3102,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
+            priority: 10
         },
     },
     {
@@ -3100,8 +3112,9 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
+            priority: 11
         },
     },
     {
@@ -3157,6 +3170,17 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade],
             type: models_1.GithubActionInputType.String,
+        },
+    },
+    {
+        name: 'revision',
+        value: {
+            description: "a revision (version) number. If this argument is omitted, it will roll back to the previous release",
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [models_1.HelmSubcommand.Rollback],
+            type: models_1.GithubActionInputType.Number,
         },
     },
     {
@@ -3221,7 +3245,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -3276,7 +3300,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
         },
     },
@@ -3287,7 +3311,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
             required: false,
             default: '',
             value: undefined,
-            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
+            supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
         },
     }
@@ -3309,6 +3333,7 @@ var HelmSubcommand;
     HelmSubcommand["Install"] = "install";
     HelmSubcommand["Uninstall"] = "uninstall";
     HelmSubcommand["Upgrade"] = "upgrade";
+    HelmSubcommand["Rollback"] = "rollback";
     HelmSubcommand["None"] = "";
 })(HelmSubcommand = exports.HelmSubcommand || (exports.HelmSubcommand = {}));
 var GithubActionInputType;
@@ -3510,6 +3535,14 @@ const input_definitions_1 = __nccwpck_require__(275);
 const models_1 = __nccwpck_require__(165);
 const tmpfile_1 = __nccwpck_require__(518);
 const child_process_1 = __nccwpck_require__(81);
+function getPriority(input) {
+    if (input.value.priority === undefined) {
+        return 0;
+    }
+    else {
+        return input.value.priority;
+    }
+}
 function parseInputs(subcommand) {
     const result = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION.map((input) => {
         if (input.value.value === undefined || input.value.value === "") {
@@ -3529,7 +3562,8 @@ function parseInputs(subcommand) {
             throw Error("(only) one of `generate_name` or `release_name` must be set");
         }
     }
-    return handleFileInputs(result);
+    return handleFileInputs(result)
+        .sort((item1, item2) => getPriority(item2) - getPriority(item1));
 }
 function parseValueByType(input) {
     const value = core.getInput(input.name);
@@ -3603,8 +3637,8 @@ function validateInput(input, subcommand) {
 function inputsToHelmFlags(inputs) {
     return inputs.map((input) => {
         const flag = `--${input.name.replace(/_/g, "-")}`;
-        if (input.name === "ref" || input.name === "release_name") {
-            return undefined;
+        if (input.name === "ref" || input.name === "release_name" || input.name === "revision") {
+            return input.value.value;
         }
         else if (input.value.type === models_1.GithubActionInputType.Boolean) {
             if (input.value.value) {
@@ -3654,13 +3688,8 @@ try {
         command = `${rawCommand} ${fileArgs}`;
     }
     else {
-        const releaseName = getValueForName("release_name", inputs);
-        const ref = getInputEntry("ref", inputs);
-        if ((ref.value.value === "" || ref.value.value === undefined) && ref.value.supported_subcommands.includes(subcommand)) {
-            throw Error(`'ref' has to be set for ${subcommand}`);
-        }
         const flags = inputsToHelmFlags(inputs).join(" ");
-        command = `${rawSubcommand} ${releaseName} ${ref.value.value} ${flags}`;
+        command = `${rawSubcommand} ${flags}`;
     }
     executeHelm(command);
 }
