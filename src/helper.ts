@@ -17,11 +17,13 @@ export function getPriority(input: GithubActionInputEntry): number {
 export function validateReleaseName(subcommand: HelmSubcommand, inputs: GithubActionInputEntry[]): Boolean {
     const genName = getValueForName("generate_name", inputs);
     const releaseName = getInputEntry("release_name", inputs);
-    const releaseNameValue = releaseName.value.value;
+    const releaseNameIsSome = releaseName.value.value !== "";
 
+    const twoSet = (genName === true) && releaseNameIsSome;
+    const noneSet = !genName && !releaseNameIsSome;
     // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
     // a release name must be existent and these are the only two flags which can set it
-    if (((!genName && !releaseNameValue) || (genName && releaseNameValue)) && subcommand !== HelmSubcommand.None) {
+    if ((twoSet || noneSet) && subcommand !== HelmSubcommand.None) {
         if (releaseName.value.supported_subcommands.includes(subcommand)) {
             throw Error("(only) one of `generate_name` or `release_name` must be set");
         }

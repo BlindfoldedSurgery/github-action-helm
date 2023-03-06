@@ -1,9 +1,10 @@
 const fs = require('fs');
 const core = require('@actions/core');
 import { getInputsByType, parseInputs, inputsToHelmFlags, executeHelm, cleanupFiles, validateReleaseName, sortInputs, populateInputConfigValues } from "./helper";
+import { GITHUB_ACTIONS_INPUT_CONFIGURATION } from "./input_definitions";
 import { GithubActionInputEntry, GithubActionInputType, HelmSubcommand } from "./models";
 
-let inputs: GithubActionInputEntry[] = [];
+let inputs: GithubActionInputEntry[] = GITHUB_ACTIONS_INPUT_CONFIGURATION;
 try {
     const rawSubcommand: string = core.getInput("subcommand");
     const subcommand = rawSubcommand as HelmSubcommand;
@@ -20,9 +21,9 @@ try {
 
         command = `${rawCommand}`
     } else {
-        inputs = sortInputs(parseInputs(subcommand));
         validateReleaseName(subcommand, inputs);
     }
+    inputs = sortInputs(parseInputs(subcommand, inputs));
     const flags = inputsToHelmFlags(inputs).join(" ");
 
     executeHelm(`${command} ${flags}`);
@@ -30,6 +31,4 @@ try {
     core.setFailed(error.message);
 }
 
-if (inputs.length > 0) {
-    cleanupFiles(inputs);
-}
+cleanupFiles(inputs);

@@ -3721,8 +3721,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const fs = __nccwpck_require__(147);
 const core = __nccwpck_require__(398);
 const helper_1 = __nccwpck_require__(689);
+const input_definitions_1 = __nccwpck_require__(840);
 const models_1 = __nccwpck_require__(143);
-let inputs = [];
+let inputs = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION;
 try {
     const rawSubcommand = core.getInput("subcommand");
     const subcommand = rawSubcommand;
@@ -3737,18 +3738,16 @@ try {
         command = `${rawCommand}`;
     }
     else {
-        inputs = (0, helper_1.sortInputs)((0, helper_1.parseInputs)(subcommand));
         (0, helper_1.validateReleaseName)(subcommand, inputs);
     }
+    inputs = (0, helper_1.sortInputs)((0, helper_1.parseInputs)(subcommand, inputs));
     const flags = (0, helper_1.inputsToHelmFlags)(inputs).join(" ");
     (0, helper_1.executeHelm)(`${command} ${flags}`);
 }
 catch (error) {
     core.setFailed(error.message);
 }
-if (inputs.length > 0) {
-    (0, helper_1.cleanupFiles)(inputs);
-}
+(0, helper_1.cleanupFiles)(inputs);
 
 })();
 
