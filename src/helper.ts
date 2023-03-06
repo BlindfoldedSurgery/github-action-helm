@@ -14,8 +14,8 @@ export function getPriority(input: GithubActionInputEntry): number {
     }
 }
 
-export function parseInputs(subcommand: HelmSubcommand): GithubActionInputEntry[] {
-    const result = GITHUB_ACTIONS_INPUT_CONFIGURATION.map((input: GithubActionInputEntry) => {
+export function parseInputs(subcommand: HelmSubcommand, config: GithubActionInputEntry[] = GITHUB_ACTIONS_INPUT_CONFIGURATION): GithubActionInputEntry[] {
+    const result = config.map((input: GithubActionInputEntry) => {
         if (input.value.value === undefined || input.value.value === "") {
             input.value.value = input.value.default;
         }
