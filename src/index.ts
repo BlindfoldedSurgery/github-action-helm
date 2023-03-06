@@ -56,7 +56,7 @@ function parseValueByType(input: GithubActionInputEntry): string | boolean | num
                 return input.value.value;
             }
 
-            const val = <string>input.value.value;
+            const val = <string>value;
             return val.toLowerCase() === "true";
         case GithubActionInputType.Number:
             return Number(value);
