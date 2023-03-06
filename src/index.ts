@@ -56,7 +56,7 @@ function parseValueByType(input: GithubActionInputEntry): string | boolean | num
                 return input.value.value;
             }
 
-            const val = <string>input.value.value;
+            const val = <string>value;
             return val.toLowerCase() === "true";
         case GithubActionInputType.Number:
             return Number(value);
@@ -160,33 +160,31 @@ function executeHelm(args: string): string {
     return stdout;
 }
 
-let inputs = null;
+let inputs: GithubActionInputEntry[] = [];
 try {
     const rawSubcommand: string = core.getInput("subcommand");
     const subcommand = rawSubcommand as HelmSubcommand;
     const rawCommand = core.getInput("raw_command");
 
-    inputs = parseInputs(subcommand);
     if (subcommand === HelmSubcommand.None && rawCommand === "") {
         throw Error("either `subcommand` or `raw_command` has to be set");
     }
-    let command = "";
+
+    let command = `${rawSubcommand}`;
     if (rawCommand !== "") {
-        const fileInputs = getInputsByType(GithubActionInputType.File, inputs);
-        const fileArgs = inputsToHelmFlags(fileInputs);
+        inputs = getInputsByType(GithubActionInputType.File, inputs);
 
-        command = `${rawCommand} ${fileArgs}`
+        command = `${rawCommand}`
     } else {
-        const flags = inputsToHelmFlags(inputs).join(" ");
-        command = `${rawSubcommand} ${flags}`;
+        inputs = parseInputs(subcommand);
     }
+    const flags = inputsToHelmFlags(inputs).join(" ");
 
-    executeHelm(command);
-
+    executeHelm(`${rawSubcommand} ${flags}`);
 } catch (error: any) {
     core.setFailed(error.message);
 }
 
-if (inputs !== null) {
+if (inputs.length > 0) {
     cleanupFiles(inputs);
 }
