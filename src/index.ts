@@ -1,6 +1,6 @@
 const fs = require('fs');
 const core = require('@actions/core');
-import { getInputsByType, parseInputs, inputsToHelmFlags, executeHelm, cleanupFiles, validateReleaseName } from "./helper";
+import { getInputsByType, parseInputs, inputsToHelmFlags, executeHelm, cleanupFiles, validateReleaseName, sortInputs, populateInputConfigValues } from "./helper";
 import { GithubActionInputEntry, GithubActionInputType, HelmSubcommand } from "./models";
 
 let inputs: GithubActionInputEntry[] = [];
@@ -13,13 +13,14 @@ try {
         throw Error("either `subcommand` or `raw_command` has to be set");
     }
 
+    populateInputConfigValues();
     let command = `${rawSubcommand}`;
     if (rawCommand !== "") {
         inputs = getInputsByType(GithubActionInputType.File, inputs);
 
         command = `${rawCommand}`
     } else {
-        inputs = parseInputs(subcommand);
+        inputs = sortInputs(parseInputs(subcommand));
         validateReleaseName(subcommand, inputs);
     }
     const flags = inputsToHelmFlags(inputs).join(" ");

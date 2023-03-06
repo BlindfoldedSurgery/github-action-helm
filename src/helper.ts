@@ -14,20 +14,6 @@ export function getPriority(input: GithubActionInputEntry): number {
     }
 }
 
-export function parseInputs(subcommand: HelmSubcommand, config: GithubActionInputEntry[] = GITHUB_ACTIONS_INPUT_CONFIGURATION): GithubActionInputEntry[] {
-    const result = config.map((input: GithubActionInputEntry) => {
-        if (input.value.value === undefined || input.value.value === "") {
-            input.value.value = input.value.default;
-        }
-        input.value.value = parseValueByType(input);
-        validateInput(input, subcommand);
-        return input;
-    });
-
-    return handleFileInputs(result)
-            .sort((item1, item2) => getPriority(item2) - getPriority(item1));
-}
-
 export function validateReleaseName(subcommand: HelmSubcommand, inputs: GithubActionInputEntry[]): Boolean {
     const genName = getValueForName("generate_name", inputs);
     const releaseName = getInputEntry("release_name", inputs);
@@ -44,8 +30,63 @@ export function validateReleaseName(subcommand: HelmSubcommand, inputs: GithubAc
     return true;
 }
 
+export function sortInputs(inputs: GithubActionInputEntry[]): GithubActionInputEntry[] {
+    return inputs.sort((item1, item2) => getPriority(item2) - getPriority(item1));
+}
+
+export function gpopulateInputConfigValues(config: GithubActionInputEntry[] = GITHUB_ACTIONS_INPUT_CONFIGURATION): GithubActionInputEntry[] {
+    return config.map((input: GithubActionInputEntry) => {
+        input.value.value = core.getInput(input.name);
+
+        return input;
+    })
+}
+
+export function parseInputs(subcommand: HelmSubcommand, config: GithubActionInputEntry[] = GITHUB_ACTIONS_INPUT_CONFIGURATION): GithubActionInputEntry[] {
+    const result = config.map((input: GithubActionInputEntry) => {
+        if (input.value.value === undefined || input.value.value === "") {
+            input.value.value = input.value.default;
+        }
+        input.value.value = parseValueByType(input);
+        validateInput(input, subcommand);
+        return input;
+    });
+
+    return handleFileInputs(result);
+}
+
+export function validateInput(input: GithubActionInputEntry, subcommand: HelmSubcommand): boolean {
+    // since we support files for the subcommand, we should stil
+    if (subcommand === HelmSubcommand.None && input.value.type !== GithubActionInputType.File) {
+        return true;
+    }
+    const isSupportedSubcommand = input.value.supported_subcommands.includes(subcommand) || input.value.supported_subcommands.includes(HelmSubcommand.All);
+    const hasValue = input.value.value !== "" && input.value.value !== undefined;
+    const isFalseBoolean = input.value.type === GithubActionInputType.Boolean && input.value.value === false;
+
+    // default case is already handled in `parseInputs`
+    if (input.value.required && isSupportedSubcommand && !hasValue) {
+        throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`)
+    } else if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
+        // boolean is set to false by default and will not be passed as a flag
+        throw Error(`${input.name} is not supported for ${subcommand}`);
+    }
+
+    if (input.value.type === GithubActionInputType.Boolean) {
+        if (!(input.value.value === true || input.value.value === false)) {
+            throw Error(`'${input.name}' with type 'Boolean' must be 'true' or 'false'`)
+        }
+    } else if (input.value.type === GithubActionInputType.Number) {
+        if (Number.isNaN(<Number>input.value.value)) {
+            throw Error(`'${input.name}' with type 'Number' must not be 'NaN'`)
+        }
+    }
+
+    return isSupportedSubcommand || subcommand === HelmSubcommand.None;
+}
+
 export function parseValueByType(input: GithubActionInputEntry): string | boolean | number | undefined {
-    const value = core.getInput(input.name);
+    const value = input.value.value;
     // requirement validation will be done in `validateInput`
     if (value === "" || value === undefined) {
         if (input.value.type === GithubActionInputType.Boolean) {
@@ -100,26 +141,6 @@ export function cleanupFiles(inputs: GithubActionInputEntry[]) {
 
         deleteTmpfile(<string>entry.value.value);
     })
-}
-
-export function validateInput(input: GithubActionInputEntry, subcommand: HelmSubcommand): boolean {
-    // since we support files for the subcommand, we should stil
-    if (subcommand === HelmSubcommand.None && input.value.type !== GithubActionInputType.File) {
-        return true;
-    }
-    const isSupportedSubcommand = input.value.supported_subcommands.includes(subcommand) || input.value.supported_subcommands.includes(HelmSubcommand.All);
-    const hasValue = input.value.value !== "" && input.value.value !== undefined;
-    const isFalseBoolean = input.value.type === GithubActionInputType.Boolean && input.value.value === false;
-
-    // default case is already handled in `parseInputs`
-    if (input.value.required && isSupportedSubcommand && !hasValue) {
-        throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`)
-    } else if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
-        // boolean is set to false by default and will not be passed as a flag
-        throw Error(`${input.name} is not supported for ${subcommand}`);
-    }
-
-    return isSupportedSubcommand || subcommand === HelmSubcommand.None;
 }
 
 export function inputsToHelmFlags(inputs: GithubActionInputEntry[]): string[] {
