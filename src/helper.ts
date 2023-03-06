@@ -24,8 +24,13 @@ export function parseInputs(subcommand: HelmSubcommand, config: GithubActionInpu
         return input;
     });
 
-    const genName = getValueForName("generate_name", result);
-    const releaseName = getInputEntry("release_name", result);
+    return handleFileInputs(result)
+            .sort((item1, item2) => getPriority(item2) - getPriority(item1));
+}
+
+export function validateReleaseName(subcommand: HelmSubcommand, inputs: GithubActionInputEntry[]): Boolean {
+    const genName = getValueForName("generate_name", inputs);
+    const releaseName = getInputEntry("release_name", inputs);
     const releaseNameValue = releaseName.value.value;
 
     // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
@@ -36,8 +41,7 @@ export function parseInputs(subcommand: HelmSubcommand, config: GithubActionInpu
         }
     }
 
-    return handleFileInputs(result)
-            .sort((item1, item2) => getPriority(item2) - getPriority(item1));
+    return true;
 }
 
 export function parseValueByType(input: GithubActionInputEntry): string | boolean | number | undefined {

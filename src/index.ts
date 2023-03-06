@@ -1,6 +1,6 @@
 const fs = require('fs');
 const core = require('@actions/core');
-import { getInputsByType, parseInputs, inputsToHelmFlags, executeHelm, cleanupFiles } from "./helper";
+import { getInputsByType, parseInputs, inputsToHelmFlags, executeHelm, cleanupFiles, validateReleaseName } from "./helper";
 import { GithubActionInputEntry, GithubActionInputType, HelmSubcommand } from "./models";
 
 let inputs: GithubActionInputEntry[] = [];
@@ -20,6 +20,7 @@ try {
         command = `${rawCommand}`
     } else {
         inputs = parseInputs(subcommand);
+        validateReleaseName(subcommand, inputs);
     }
     const flags = inputsToHelmFlags(inputs).join(" ");
 
