@@ -25,7 +25,7 @@ try {
     }
     const flags = inputsToHelmFlags(inputs).join(" ");
 
-    executeHelm(`${rawSubcommand} ${flags}`);
+    executeHelm(`${command} ${flags}`);
 } catch (error: any) {
     core.setFailed(error.message);
 }

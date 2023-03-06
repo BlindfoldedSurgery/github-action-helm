@@ -2688,6 +2688,195 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 689:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.executeHelm = exports.getInputsByType = exports.getValueForName = exports.getInputEntry = exports.inputsToHelmFlags = exports.cleanupFiles = exports.handleFileInputs = exports.parseValueByType = exports.validateInput = exports.parseInputs = exports.populateInputConfigValues = exports.sortInputs = exports.validateReleaseName = exports.getPriority = void 0;
+const fs = __nccwpck_require__(147);
+const core = __nccwpck_require__(398);
+const input_definitions_1 = __nccwpck_require__(840);
+const models_1 = __nccwpck_require__(143);
+const tmpfile_1 = __nccwpck_require__(221);
+const child_process_1 = __nccwpck_require__(81);
+function getPriority(input) {
+    if (input.value.priority === undefined) {
+        return 0;
+    }
+    else {
+        return input.value.priority;
+    }
+}
+exports.getPriority = getPriority;
+function validateReleaseName(subcommand, inputs) {
+    const genName = getValueForName("generate_name", inputs);
+    const releaseName = getInputEntry("release_name", inputs);
+    const releaseNameValue = releaseName.value.value;
+    // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
+    // a release name must be existent and these are the only two flags which can set it
+    if (((!genName && !releaseNameValue) || (genName && releaseNameValue)) && subcommand !== models_1.HelmSubcommand.None) {
+        if (releaseName.value.supported_subcommands.includes(subcommand)) {
+            throw Error("(only) one of `generate_name` or `release_name` must be set");
+        }
+    }
+    return true;
+}
+exports.validateReleaseName = validateReleaseName;
+function sortInputs(inputs) {
+    return inputs.sort((item1, item2) => getPriority(item2) - getPriority(item1));
+}
+exports.sortInputs = sortInputs;
+function populateInputConfigValues(config = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION) {
+    return config.map((input) => {
+        input.value.value = core.getInput(input.name);
+        return input;
+    });
+}
+exports.populateInputConfigValues = populateInputConfigValues;
+function parseInputs(subcommand, config = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION) {
+    const result = config.map((input) => {
+        if (input.value.value === undefined || input.value.value === "") {
+            input.value.value = input.value.default;
+        }
+        input.value.value = parseValueByType(input);
+        validateInput(input, subcommand);
+        return input;
+    });
+    return handleFileInputs(result);
+}
+exports.parseInputs = parseInputs;
+function validateInput(input, subcommand) {
+    // since we support files for the subcommand, we should stil
+    if (subcommand === models_1.HelmSubcommand.None && input.value.type !== models_1.GithubActionInputType.File) {
+        return true;
+    }
+    const isSupportedSubcommand = input.value.supported_subcommands.includes(subcommand) || input.value.supported_subcommands.includes(models_1.HelmSubcommand.All);
+    const hasValue = input.value.value !== "" && input.value.value !== undefined;
+    const isFalseBoolean = input.value.type === models_1.GithubActionInputType.Boolean && input.value.value === false;
+    // default case is already handled in `parseInputs`
+    if (input.value.required && isSupportedSubcommand && !hasValue) {
+        throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`);
+    }
+    else if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
+        // boolean is set to false by default and will not be passed as a flag
+        throw Error(`${input.name} is not supported for ${subcommand}`);
+    }
+    if (input.value.type === models_1.GithubActionInputType.Boolean) {
+        if (!(input.value.value === true || input.value.value === false)) {
+            throw Error(`'${input.name}' with type 'Boolean' must be 'true' or 'false'`);
+        }
+    }
+    else if (input.value.type === models_1.GithubActionInputType.Number) {
+        if (Number.isNaN(input.value.value)) {
+            throw Error(`'${input.name}' with type 'Number' must not be 'NaN'`);
+        }
+    }
+    return isSupportedSubcommand || subcommand === models_1.HelmSubcommand.None;
+}
+exports.validateInput = validateInput;
+function parseValueByType(input) {
+    const value = input.value.value;
+    // requirement validation will be done in `validateInput`
+    if (value === "" || value === undefined) {
+        if (input.value.type === models_1.GithubActionInputType.Boolean) {
+            return false;
+        }
+        return input.value.value;
+    }
+    switch (input.value.type) {
+        case models_1.GithubActionInputType.Boolean:
+            if (input.value.value === false || input.value.value === true) {
+                return input.value.value;
+            }
+            const val = value;
+            return val.toLowerCase() === "true";
+        case models_1.GithubActionInputType.Number:
+            return Number(value);
+        case models_1.GithubActionInputType.File:
+            return value;
+        case models_1.GithubActionInputType.Time:
+            return value;
+        case models_1.GithubActionInputType.String:
+            return value;
+    }
+}
+exports.parseValueByType = parseValueByType;
+function handleFileInputs(inputs) {
+    return inputs.map((entry) => {
+        if (entry.value.type !== models_1.GithubActionInputType.File || entry.value.value === "") {
+            return entry;
+        }
+        if (fs.existsSync(entry.value.value)) {
+            console.info(`handle value from '${entry.name}' as filepath`);
+            return entry;
+        }
+        else {
+            console.info(`handle value from ${entry.name} as file content (generating temporary file)`);
+            const path = (0, tmpfile_1.writeTmpfile)(entry.value.value);
+            entry.value.value = path;
+            return entry;
+        }
+    });
+}
+exports.handleFileInputs = handleFileInputs;
+function cleanupFiles(inputs) {
+    return inputs.forEach((entry) => {
+        if (entry.value.type !== models_1.GithubActionInputType.File || entry.value.value === "") {
+            return entry;
+        }
+        (0, tmpfile_1.deleteTmpfile)(entry.value.value);
+    });
+}
+exports.cleanupFiles = cleanupFiles;
+function inputsToHelmFlags(inputs) {
+    return inputs.map((input) => {
+        const flag = `--${input.name.replace(/_/g, "-")}`;
+        if (input.name === "ref" || input.name === "release_name" || input.name === "revision") {
+            return input.value.value;
+        }
+        else if (input.value.type === models_1.GithubActionInputType.Boolean) {
+            if (input.value.value) {
+                return flag;
+            }
+        }
+        else if (input.value.value !== "") {
+            const value = input.value.value || input.value.default;
+            return `${flag}=${value}`;
+        }
+        else {
+            return undefined;
+        }
+    }).filter((item) => item);
+}
+exports.inputsToHelmFlags = inputsToHelmFlags;
+function getInputEntry(name, inputs) {
+    return inputs.find((item) => item.name === name);
+}
+exports.getInputEntry = getInputEntry;
+function getValueForName(name, inputs) {
+    const item = getInputEntry(name, inputs);
+    return item.value.value;
+}
+exports.getValueForName = getValueForName;
+function getInputsByType(type, inputs) {
+    return inputs.filter((item) => item.value.type === type);
+}
+exports.getInputsByType = getInputsByType;
+function executeHelm(args) {
+    args = args.replace(/^helm /, "");
+    const command = `helm ${args}`;
+    console.log(`executing ${command}`);
+    const stdout = (0, child_process_1.execSync)(command).toString();
+    console.log(stdout);
+    return stdout;
+}
+exports.executeHelm = executeHelm;
+
+
+/***/ }),
+
 /***/ 840:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -3529,161 +3718,10 @@ var __webpack_exports__ = {};
 var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.executeHelm = exports.getInputsByType = exports.getValueForName = exports.getInputEntry = exports.inputsToHelmFlags = exports.validateInput = exports.cleanupFiles = exports.handleFileInputs = exports.parseValueByType = exports.parseInputs = exports.getPriority = void 0;
 const fs = __nccwpck_require__(147);
 const core = __nccwpck_require__(398);
-const input_definitions_1 = __nccwpck_require__(840);
+const helper_1 = __nccwpck_require__(689);
 const models_1 = __nccwpck_require__(143);
-const tmpfile_1 = __nccwpck_require__(221);
-const child_process_1 = __nccwpck_require__(81);
-function getPriority(input) {
-    if (input.value.priority === undefined) {
-        return 0;
-    }
-    else {
-        return input.value.priority;
-    }
-}
-exports.getPriority = getPriority;
-function parseInputs(subcommand) {
-    const result = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION.map((input) => {
-        if (input.value.value === undefined || input.value.value === "") {
-            input.value.value = input.value.default;
-        }
-        input.value.value = parseValueByType(input);
-        validateInput(input, subcommand);
-        return input;
-    });
-    const genName = getValueForName("generate_name", result);
-    const releaseName = getInputEntry("release_name", result);
-    const releaseNameValue = releaseName.value.value;
-    // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
-    // a release name must be existent and these are the only two flags which can set it
-    if (((!genName && !releaseNameValue) || (genName && releaseNameValue)) && subcommand !== models_1.HelmSubcommand.None) {
-        if (releaseName.value.supported_subcommands.includes(subcommand)) {
-            throw Error("(only) one of `generate_name` or `release_name` must be set");
-        }
-    }
-    return handleFileInputs(result)
-        .sort((item1, item2) => getPriority(item2) - getPriority(item1));
-}
-exports.parseInputs = parseInputs;
-function parseValueByType(input) {
-    const value = core.getInput(input.name);
-    // requirement validation will be done in `validateInput`
-    if (value === "" || value === undefined) {
-        if (input.value.type === models_1.GithubActionInputType.Boolean) {
-            return false;
-        }
-        return input.value.value;
-    }
-    switch (input.value.type) {
-        case models_1.GithubActionInputType.Boolean:
-            if (input.value.value === false || input.value.value === true) {
-                return input.value.value;
-            }
-            const val = value;
-            return val.toLowerCase() === "true";
-        case models_1.GithubActionInputType.Number:
-            return Number(value);
-        case models_1.GithubActionInputType.File:
-            return value;
-        case models_1.GithubActionInputType.Time:
-            return value;
-        case models_1.GithubActionInputType.String:
-            return value;
-    }
-}
-exports.parseValueByType = parseValueByType;
-function handleFileInputs(inputs) {
-    return inputs.map((entry) => {
-        if (entry.value.type !== models_1.GithubActionInputType.File || entry.value.value === "") {
-            return entry;
-        }
-        if (fs.existsSync(entry.value.value)) {
-            console.info(`handle value from '${entry.name}' as filepath`);
-            return entry;
-        }
-        else {
-            console.info(`handle value from ${entry.name} as file content (generating temporary file)`);
-            const path = (0, tmpfile_1.writeTmpfile)(entry.value.value);
-            entry.value.value = path;
-            return entry;
-        }
-    });
-}
-exports.handleFileInputs = handleFileInputs;
-function cleanupFiles(inputs) {
-    return inputs.forEach((entry) => {
-        if (entry.value.type !== models_1.GithubActionInputType.File || entry.value.value === "") {
-            return entry;
-        }
-        (0, tmpfile_1.deleteTmpfile)(entry.value.value);
-    });
-}
-exports.cleanupFiles = cleanupFiles;
-function validateInput(input, subcommand) {
-    // since we support files for the subcommand, we should stil
-    if (subcommand === models_1.HelmSubcommand.None && input.value.type !== models_1.GithubActionInputType.File) {
-        return true;
-    }
-    const isSupportedSubcommand = input.value.supported_subcommands.includes(subcommand) || input.value.supported_subcommands.includes(models_1.HelmSubcommand.All);
-    const hasValue = input.value.value !== "" && input.value.value !== undefined;
-    const isFalseBoolean = input.value.type === models_1.GithubActionInputType.Boolean && input.value.value === false;
-    // default case is already handled in `parseInputs`
-    if (input.value.required && isSupportedSubcommand && !hasValue) {
-        throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`);
-    }
-    else if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
-        // boolean is set to false by default and will not be passed as a flag
-        throw Error(`${input.name} is not supported for ${subcommand}`);
-    }
-    return isSupportedSubcommand || subcommand === models_1.HelmSubcommand.None;
-}
-exports.validateInput = validateInput;
-function inputsToHelmFlags(inputs) {
-    return inputs.map((input) => {
-        const flag = `--${input.name.replace(/_/g, "-")}`;
-        if (input.name === "ref" || input.name === "release_name" || input.name === "revision") {
-            return input.value.value;
-        }
-        else if (input.value.type === models_1.GithubActionInputType.Boolean) {
-            if (input.value.value) {
-                return flag;
-            }
-        }
-        else if (input.value.value !== "") {
-            const value = input.value.value || input.value.default;
-            return `${flag}=${value}`;
-        }
-        else {
-            return undefined;
-        }
-    }).filter((item) => item);
-}
-exports.inputsToHelmFlags = inputsToHelmFlags;
-function getInputEntry(name, inputs) {
-    return inputs.find((item) => item.name === name);
-}
-exports.getInputEntry = getInputEntry;
-function getValueForName(name, inputs) {
-    const item = getInputEntry(name, inputs);
-    return item.value.value;
-}
-exports.getValueForName = getValueForName;
-function getInputsByType(type, inputs) {
-    return inputs.filter((item) => item.value.type === type);
-}
-exports.getInputsByType = getInputsByType;
-function executeHelm(args) {
-    args = args.replace(/^helm /, "");
-    const command = `helm ${args}`;
-    console.log(`executing ${command}`);
-    const stdout = (0, child_process_1.execSync)(command).toString();
-    console.log(stdout);
-    return stdout;
-}
-exports.executeHelm = executeHelm;
 let inputs = [];
 try {
     const rawSubcommand = core.getInput("subcommand");
@@ -3692,22 +3730,24 @@ try {
     if (subcommand === models_1.HelmSubcommand.None && rawCommand === "") {
         throw Error("either `subcommand` or `raw_command` has to be set");
     }
+    (0, helper_1.populateInputConfigValues)();
     let command = `${rawSubcommand}`;
     if (rawCommand !== "") {
-        inputs = getInputsByType(models_1.GithubActionInputType.File, inputs);
+        inputs = (0, helper_1.getInputsByType)(models_1.GithubActionInputType.File, inputs);
         command = `${rawCommand}`;
     }
     else {
-        inputs = parseInputs(subcommand);
+        inputs = (0, helper_1.sortInputs)((0, helper_1.parseInputs)(subcommand));
+        (0, helper_1.validateReleaseName)(subcommand, inputs);
     }
-    const flags = inputsToHelmFlags(inputs).join(" ");
-    executeHelm(`${rawSubcommand} ${flags}`);
+    const flags = (0, helper_1.inputsToHelmFlags)(inputs).join(" ");
+    (0, helper_1.executeHelm)(`${command} ${flags}`);
 }
 catch (error) {
     core.setFailed(error.message);
 }
 if (inputs.length > 0) {
-    cleanupFiles(inputs);
+    (0, helper_1.cleanupFiles)(inputs);
 }
 
 })();
