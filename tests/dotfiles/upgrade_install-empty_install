@@ -1,0 +1,7 @@
+export INPUT_SUBCOMMAND=upgrade
+export INPUT_REF=examples/install-empty
+export INPUT_RELEASE_NAME="install-empty"
+export INPUT_NAMESPACE="action-example"
+export INPUT_GENERATE_NAME="false"
+export INPUT_KUBECONFIG="/home/torben/.kube/config"
+export INPUT_INSTALL="true"

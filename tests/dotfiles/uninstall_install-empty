@@ -1,0 +1,4 @@
+export INPUT_SUBCOMMAND=uninstall
+export INPUT_RELEASE_NAME="install-empty"
+export INPUT_NAMESPACE="action-example"
+export INPUT_KUBECONFIG="/home/torben/.kube/config"
