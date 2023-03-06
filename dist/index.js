@@ -3529,6 +3529,7 @@ var __webpack_exports__ = {};
 var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.executeHelm = exports.getInputsByType = exports.getValueForName = exports.getInputEntry = exports.inputsToHelmFlags = exports.validateInput = exports.cleanupFiles = exports.handleFileInputs = exports.parseValueByType = exports.parseInputs = exports.getPriority = void 0;
 const fs = __nccwpck_require__(147);
 const core = __nccwpck_require__(398);
 const input_definitions_1 = __nccwpck_require__(840);
@@ -3543,6 +3544,7 @@ function getPriority(input) {
         return input.value.priority;
     }
 }
+exports.getPriority = getPriority;
 function parseInputs(subcommand) {
     const result = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION.map((input) => {
         if (input.value.value === undefined || input.value.value === "") {
@@ -3565,6 +3567,7 @@ function parseInputs(subcommand) {
     return handleFileInputs(result)
         .sort((item1, item2) => getPriority(item2) - getPriority(item1));
 }
+exports.parseInputs = parseInputs;
 function parseValueByType(input) {
     const value = core.getInput(input.name);
     // requirement validation will be done in `validateInput`
@@ -3591,6 +3594,7 @@ function parseValueByType(input) {
             return value;
     }
 }
+exports.parseValueByType = parseValueByType;
 function handleFileInputs(inputs) {
     return inputs.map((entry) => {
         if (entry.value.type !== models_1.GithubActionInputType.File || entry.value.value === "") {
@@ -3608,6 +3612,7 @@ function handleFileInputs(inputs) {
         }
     });
 }
+exports.handleFileInputs = handleFileInputs;
 function cleanupFiles(inputs) {
     return inputs.forEach((entry) => {
         if (entry.value.type !== models_1.GithubActionInputType.File || entry.value.value === "") {
@@ -3616,6 +3621,7 @@ function cleanupFiles(inputs) {
         (0, tmpfile_1.deleteTmpfile)(entry.value.value);
     });
 }
+exports.cleanupFiles = cleanupFiles;
 function validateInput(input, subcommand) {
     // since we support files for the subcommand, we should stil
     if (subcommand === models_1.HelmSubcommand.None && input.value.type !== models_1.GithubActionInputType.File) {
@@ -3634,6 +3640,7 @@ function validateInput(input, subcommand) {
     }
     return isSupportedSubcommand || subcommand === models_1.HelmSubcommand.None;
 }
+exports.validateInput = validateInput;
 function inputsToHelmFlags(inputs) {
     return inputs.map((input) => {
         const flag = `--${input.name.replace(/_/g, "-")}`;
@@ -3654,16 +3661,20 @@ function inputsToHelmFlags(inputs) {
         }
     }).filter((item) => item);
 }
+exports.inputsToHelmFlags = inputsToHelmFlags;
 function getInputEntry(name, inputs) {
     return inputs.find((item) => item.name === name);
 }
+exports.getInputEntry = getInputEntry;
 function getValueForName(name, inputs) {
     const item = getInputEntry(name, inputs);
     return item.value.value;
 }
+exports.getValueForName = getValueForName;
 function getInputsByType(type, inputs) {
     return inputs.filter((item) => item.value.type === type);
 }
+exports.getInputsByType = getInputsByType;
 function executeHelm(args) {
     args = args.replace(/^helm /, "");
     const command = `helm ${args}`;
@@ -3672,6 +3683,7 @@ function executeHelm(args) {
     console.log(stdout);
     return stdout;
 }
+exports.executeHelm = executeHelm;
 let inputs = [];
 try {
     const rawSubcommand = core.getInput("subcommand");
