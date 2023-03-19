@@ -1,5 +1,1 @@
-Fix boolean inputs
-
-Integrate examples into this repository
-
-Add support for `helm rollback`
+Fix `raw_subcommand` not propagating inputs, previously `raw_subcommand` params were not passed to helm resulting in helm simply printing the `help` menu with exit code `0` (succedding the pipeline) (see https://github.com/OpenAlcoholics/github-action-helm/issues/12)

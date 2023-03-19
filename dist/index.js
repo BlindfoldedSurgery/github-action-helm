@@ -1,7 +1,7 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 268:
+/***/ 477:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -28,7 +28,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.issue = exports.issueCommand = void 0;
 const os = __importStar(__nccwpck_require__(37));
-const utils_1 = __nccwpck_require__(685);
+const utils_1 = __nccwpck_require__(810);
 /**
  * Commands
  *
@@ -100,7 +100,7 @@ function escapeProperty(s) {
 
 /***/ }),
 
-/***/ 398:
+/***/ 696:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -135,12 +135,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getIDToken = exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
-const command_1 = __nccwpck_require__(268);
-const file_command_1 = __nccwpck_require__(14);
-const utils_1 = __nccwpck_require__(685);
+const command_1 = __nccwpck_require__(477);
+const file_command_1 = __nccwpck_require__(621);
+const utils_1 = __nccwpck_require__(810);
 const os = __importStar(__nccwpck_require__(37));
 const path = __importStar(__nccwpck_require__(17));
-const oidc_utils_1 = __nccwpck_require__(565);
+const oidc_utils_1 = __nccwpck_require__(776);
 /**
  * The code to exit an action
  */
@@ -425,17 +425,17 @@ exports.getIDToken = getIDToken;
 /**
  * Summary exports
  */
-var summary_1 = __nccwpck_require__(559);
+var summary_1 = __nccwpck_require__(89);
 Object.defineProperty(exports, "summary", ({ enumerable: true, get: function () { return summary_1.summary; } }));
 /**
  * @deprecated use core.summary
  */
-var summary_2 = __nccwpck_require__(559);
+var summary_2 = __nccwpck_require__(89);
 Object.defineProperty(exports, "markdownSummary", ({ enumerable: true, get: function () { return summary_2.markdownSummary; } }));
 /**
  * Path exports
  */
-var path_utils_1 = __nccwpck_require__(352);
+var path_utils_1 = __nccwpck_require__(3);
 Object.defineProperty(exports, "toPosixPath", ({ enumerable: true, get: function () { return path_utils_1.toPosixPath; } }));
 Object.defineProperty(exports, "toWin32Path", ({ enumerable: true, get: function () { return path_utils_1.toWin32Path; } }));
 Object.defineProperty(exports, "toPlatformPath", ({ enumerable: true, get: function () { return path_utils_1.toPlatformPath; } }));
@@ -443,7 +443,7 @@ Object.defineProperty(exports, "toPlatformPath", ({ enumerable: true, get: funct
 
 /***/ }),
 
-/***/ 14:
+/***/ 621:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -474,8 +474,8 @@ exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const fs = __importStar(__nccwpck_require__(147));
 const os = __importStar(__nccwpck_require__(37));
-const uuid_1 = __nccwpck_require__(426);
-const utils_1 = __nccwpck_require__(685);
+const uuid_1 = __nccwpck_require__(93);
+const utils_1 = __nccwpck_require__(810);
 function issueFileCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
     if (!filePath) {
@@ -508,7 +508,7 @@ exports.prepareKeyValueMessage = prepareKeyValueMessage;
 
 /***/ }),
 
-/***/ 565:
+/***/ 776:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -524,9 +524,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OidcClient = void 0;
-const http_client_1 = __nccwpck_require__(191);
-const auth_1 = __nccwpck_require__(158);
-const core_1 = __nccwpck_require__(398);
+const http_client_1 = __nccwpck_require__(292);
+const auth_1 = __nccwpck_require__(425);
+const core_1 = __nccwpck_require__(696);
 class OidcClient {
     static createHttpClient(allowRetry = true, maxRetry = 10) {
         const requestOptions = {
@@ -592,7 +592,7 @@ exports.OidcClient = OidcClient;
 
 /***/ }),
 
-/***/ 352:
+/***/ 3:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -657,7 +657,7 @@ exports.toPlatformPath = toPlatformPath;
 
 /***/ }),
 
-/***/ 559:
+/***/ 89:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -947,7 +947,7 @@ exports.summary = _summary;
 
 /***/ }),
 
-/***/ 685:
+/***/ 810:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -994,7 +994,7 @@ exports.toCommandProperties = toCommandProperties;
 
 /***/ }),
 
-/***/ 158:
+/***/ 425:
 /***/ (function(__unused_webpack_module, exports) {
 
 "use strict";
@@ -1082,7 +1082,7 @@ exports.PersonalAccessTokenCredentialHandler = PersonalAccessTokenCredentialHand
 
 /***/ }),
 
-/***/ 191:
+/***/ 292:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -1118,10 +1118,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.HttpClient = exports.isHttps = exports.HttpClientResponse = exports.HttpClientError = exports.getProxyUrl = exports.MediaTypes = exports.Headers = exports.HttpCodes = void 0;
-const http = __importStar(__nccwpck_require__(181));
+const http = __importStar(__nccwpck_require__(685));
 const https = __importStar(__nccwpck_require__(687));
-const pm = __importStar(__nccwpck_require__(764));
-const tunnel = __importStar(__nccwpck_require__(238));
+const pm = __importStar(__nccwpck_require__(97));
+const tunnel = __importStar(__nccwpck_require__(569));
 var HttpCodes;
 (function (HttpCodes) {
     HttpCodes[HttpCodes["OK"] = 200] = "OK";
@@ -1694,7 +1694,7 @@ const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => ((c[k.toLowerCa
 
 /***/ }),
 
-/***/ 764:
+/***/ 97:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -1762,15 +1762,15 @@ exports.checkBypass = checkBypass;
 
 /***/ }),
 
-/***/ 238:
+/***/ 569:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-module.exports = __nccwpck_require__(176);
+module.exports = __nccwpck_require__(480);
 
 
 /***/ }),
 
-/***/ 176:
+/***/ 480:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -1778,10 +1778,10 @@ module.exports = __nccwpck_require__(176);
 
 var net = __nccwpck_require__(808);
 var tls = __nccwpck_require__(404);
-var http = __nccwpck_require__(181);
+var http = __nccwpck_require__(685);
 var https = __nccwpck_require__(687);
 var events = __nccwpck_require__(361);
-var assert = __nccwpck_require__(491);
+var assert = __nccwpck_require__(728);
 var util = __nccwpck_require__(837);
 
 
@@ -2042,7 +2042,7 @@ exports.debug = debug; // for test
 
 /***/ }),
 
-/***/ 426:
+/***/ 93:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2106,29 +2106,29 @@ Object.defineProperty(exports, "parse", ({
   }
 }));
 
-var _v = _interopRequireDefault(__nccwpck_require__(846));
+var _v = _interopRequireDefault(__nccwpck_require__(879));
 
-var _v2 = _interopRequireDefault(__nccwpck_require__(939));
+var _v2 = _interopRequireDefault(__nccwpck_require__(767));
 
-var _v3 = _interopRequireDefault(__nccwpck_require__(289));
+var _v3 = _interopRequireDefault(__nccwpck_require__(676));
 
-var _v4 = _interopRequireDefault(__nccwpck_require__(959));
+var _v4 = _interopRequireDefault(__nccwpck_require__(885));
 
-var _nil = _interopRequireDefault(__nccwpck_require__(761));
+var _nil = _interopRequireDefault(__nccwpck_require__(9));
 
-var _version = _interopRequireDefault(__nccwpck_require__(804));
+var _version = _interopRequireDefault(__nccwpck_require__(635));
 
-var _validate = _interopRequireDefault(__nccwpck_require__(566));
+var _validate = _interopRequireDefault(__nccwpck_require__(912));
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(107));
+var _stringify = _interopRequireDefault(__nccwpck_require__(719));
 
-var _parse = _interopRequireDefault(__nccwpck_require__(288));
+var _parse = _interopRequireDefault(__nccwpck_require__(919));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ }),
 
-/***/ 484:
+/***/ 864:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2158,7 +2158,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 761:
+/***/ 9:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -2173,7 +2173,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 288:
+/***/ 919:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2184,7 +2184,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _validate = _interopRequireDefault(__nccwpck_require__(566));
+var _validate = _interopRequireDefault(__nccwpck_require__(912));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2225,7 +2225,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 644:
+/***/ 801:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -2240,7 +2240,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 133:
+/***/ 491:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2271,7 +2271,7 @@ function rng() {
 
 /***/ }),
 
-/***/ 457:
+/***/ 519:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2301,7 +2301,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 107:
+/***/ 719:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2312,7 +2312,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _validate = _interopRequireDefault(__nccwpck_require__(566));
+var _validate = _interopRequireDefault(__nccwpck_require__(912));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2347,7 +2347,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 846:
+/***/ 879:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2358,9 +2358,9 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _rng = _interopRequireDefault(__nccwpck_require__(133));
+var _rng = _interopRequireDefault(__nccwpck_require__(491));
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(107));
+var _stringify = _interopRequireDefault(__nccwpck_require__(719));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2461,7 +2461,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 939:
+/***/ 767:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2472,9 +2472,9 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _v = _interopRequireDefault(__nccwpck_require__(620));
+var _v = _interopRequireDefault(__nccwpck_require__(567));
 
-var _md = _interopRequireDefault(__nccwpck_require__(484));
+var _md = _interopRequireDefault(__nccwpck_require__(864));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2484,7 +2484,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 620:
+/***/ 567:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2496,9 +2496,9 @@ Object.defineProperty(exports, "__esModule", ({
 exports["default"] = _default;
 exports.URL = exports.DNS = void 0;
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(107));
+var _stringify = _interopRequireDefault(__nccwpck_require__(719));
 
-var _parse = _interopRequireDefault(__nccwpck_require__(288));
+var _parse = _interopRequireDefault(__nccwpck_require__(919));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2569,7 +2569,7 @@ function _default(name, version, hashfunc) {
 
 /***/ }),
 
-/***/ 289:
+/***/ 676:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2580,9 +2580,9 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _rng = _interopRequireDefault(__nccwpck_require__(133));
+var _rng = _interopRequireDefault(__nccwpck_require__(491));
 
-var _stringify = _interopRequireDefault(__nccwpck_require__(107));
+var _stringify = _interopRequireDefault(__nccwpck_require__(719));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2613,7 +2613,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 959:
+/***/ 885:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2624,9 +2624,9 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _v = _interopRequireDefault(__nccwpck_require__(620));
+var _v = _interopRequireDefault(__nccwpck_require__(567));
 
-var _sha = _interopRequireDefault(__nccwpck_require__(457));
+var _sha = _interopRequireDefault(__nccwpck_require__(519));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2636,7 +2636,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 566:
+/***/ 912:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2647,7 +2647,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _regex = _interopRequireDefault(__nccwpck_require__(644));
+var _regex = _interopRequireDefault(__nccwpck_require__(801));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2660,7 +2660,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 804:
+/***/ 635:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -2671,7 +2671,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 
-var _validate = _interopRequireDefault(__nccwpck_require__(566));
+var _validate = _interopRequireDefault(__nccwpck_require__(912));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -2688,14 +2688,205 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 840:
+/***/ 493:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.executeHelm = exports.getInputsByType = exports.getValueForName = exports.getInputEntry = exports.inputsToHelmFlags = exports.cleanupFiles = exports.handleFileInputs = exports.parseValueByType = exports.validateInput = exports.parseInputs = exports.populateInputConfigValues = exports.sortInputs = exports.validateReleaseName = exports.getPriority = void 0;
+const fs = __nccwpck_require__(147);
+const core = __nccwpck_require__(696);
+const input_definitions_1 = __nccwpck_require__(275);
+const models_1 = __nccwpck_require__(165);
+const tmpfile_1 = __nccwpck_require__(518);
+const child_process_1 = __nccwpck_require__(81);
+function getPriority(input) {
+    if (input.value.priority === undefined) {
+        return 0;
+    }
+    else {
+        return input.value.priority;
+    }
+}
+exports.getPriority = getPriority;
+function validateReleaseName(subcommand, inputs) {
+    const genName = getValueForName("generate_name", inputs);
+    const releaseName = getInputEntry("release_name", inputs);
+    const releaseNameIsSome = releaseName.value.value !== "";
+    const twoSet = (genName === true) && releaseNameIsSome;
+    const noneSet = !genName && !releaseNameIsSome;
+    // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
+    // a release name must be existent and these are the only two flags which can set it
+    if ((twoSet || noneSet) && subcommand !== models_1.HelmSubcommand.None) {
+        if (releaseName.value.supported_subcommands.includes(subcommand)) {
+            throw Error("(only) one of `generate_name` or `release_name` must be set");
+        }
+    }
+    return true;
+}
+exports.validateReleaseName = validateReleaseName;
+function sortInputs(inputs) {
+    return inputs.sort((item1, item2) => getPriority(item2) - getPriority(item1));
+}
+exports.sortInputs = sortInputs;
+function populateInputConfigValues(config = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION) {
+    return config.map((input) => {
+        input.value.value = core.getInput(input.name);
+        return input;
+    });
+}
+exports.populateInputConfigValues = populateInputConfigValues;
+function parseInputs(subcommand, config = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION) {
+    const result = config.map((input) => {
+        if (input.value.value === undefined || input.value.value === "") {
+            input.value.value = input.value.default;
+        }
+        input.value.value = parseValueByType(input);
+        validateInput(input, subcommand);
+        return input;
+    });
+    return handleFileInputs(result);
+}
+exports.parseInputs = parseInputs;
+function validateInput(input, subcommand) {
+    // since we support files for the subcommand, we should stil
+    if (subcommand === models_1.HelmSubcommand.None && input.value.type !== models_1.GithubActionInputType.File) {
+        return true;
+    }
+    const isSupportedSubcommand = input.value.supported_subcommands.includes(subcommand) || input.value.supported_subcommands.includes(models_1.HelmSubcommand.All);
+    const hasValue = input.value.value !== "" && input.value.value !== undefined;
+    const isFalseBoolean = input.value.type === models_1.GithubActionInputType.Boolean && input.value.value === false;
+    // default case is already handled in `parseInputs`
+    if (input.value.required && isSupportedSubcommand && !hasValue) {
+        throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`);
+    }
+    else if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
+        // boolean is set to false by default and will not be passed as a flag
+        throw Error(`${input.name} is not supported for ${subcommand}`);
+    }
+    if (input.value.type === models_1.GithubActionInputType.Boolean) {
+        if (!(input.value.value === true || input.value.value === false)) {
+            throw Error(`'${input.name}' with type 'Boolean' must be 'true' or 'false'`);
+        }
+    }
+    else if (input.value.type === models_1.GithubActionInputType.Number) {
+        if (Number.isNaN(input.value.value)) {
+            throw Error(`'${input.name}' with type 'Number' must not be 'NaN'`);
+        }
+    }
+    return isSupportedSubcommand || subcommand === models_1.HelmSubcommand.None;
+}
+exports.validateInput = validateInput;
+function parseValueByType(input) {
+    const value = input.value.value;
+    // requirement validation will be done in `validateInput`
+    if (value === "" || value === undefined) {
+        if (input.value.type === models_1.GithubActionInputType.Boolean) {
+            return false;
+        }
+        return input.value.value;
+    }
+    switch (input.value.type) {
+        case models_1.GithubActionInputType.Boolean:
+            if (input.value.value === false || input.value.value === true) {
+                return input.value.value;
+            }
+            const val = value;
+            return val.toLowerCase() === "true";
+        case models_1.GithubActionInputType.Number:
+            return Number(value);
+        case models_1.GithubActionInputType.File:
+            return value;
+        case models_1.GithubActionInputType.Time:
+            return value;
+        case models_1.GithubActionInputType.String:
+            return value;
+    }
+}
+exports.parseValueByType = parseValueByType;
+function handleFileInputs(inputs) {
+    return inputs.map((entry) => {
+        if (entry.value.type !== models_1.GithubActionInputType.File || entry.value.value === "") {
+            return entry;
+        }
+        if (fs.existsSync(entry.value.value)) {
+            console.info(`handle value from '${entry.name}' as filepath`);
+            return entry;
+        }
+        else {
+            console.info(`handle value from ${entry.name} as file content (generating temporary file)`);
+            const path = (0, tmpfile_1.writeTmpfile)(entry.value.value);
+            entry.value.value = path;
+            return entry;
+        }
+    });
+}
+exports.handleFileInputs = handleFileInputs;
+function cleanupFiles(inputs) {
+    return inputs.forEach((entry) => {
+        if (entry.value.type !== models_1.GithubActionInputType.File || entry.value.value === "") {
+            return entry;
+        }
+        (0, tmpfile_1.deleteTmpfile)(entry.value.value);
+    });
+}
+exports.cleanupFiles = cleanupFiles;
+function inputsToHelmFlags(inputs) {
+    return inputs.map((input) => {
+        const flag = `--${input.name.replace(/_/g, "-")}`;
+        if (input.name === "ref" || input.name === "release_name" || input.name === "revision") {
+            return input.value.value;
+        }
+        else if (input.value.type === models_1.GithubActionInputType.Boolean) {
+            if (input.value.value) {
+                return flag;
+            }
+        }
+        else if (input.value.value !== "") {
+            const value = input.value.value || input.value.default;
+            return `${flag}=${value}`;
+        }
+        else {
+            return undefined;
+        }
+    }).filter((item) => item);
+}
+exports.inputsToHelmFlags = inputsToHelmFlags;
+function getInputEntry(name, inputs) {
+    return inputs.find((item) => item.name === name);
+}
+exports.getInputEntry = getInputEntry;
+function getValueForName(name, inputs) {
+    const item = getInputEntry(name, inputs);
+    return item.value.value;
+}
+exports.getValueForName = getValueForName;
+function getInputsByType(type, inputs) {
+    return inputs.filter((item) => item.value.type === type);
+}
+exports.getInputsByType = getInputsByType;
+function executeHelm(args) {
+    args = args.replace(/^helm /, "");
+    const command = `helm ${args}`;
+    console.log(`executing ${command}`);
+    const stdout = (0, child_process_1.execSync)(command).toString();
+    console.log(stdout);
+    return stdout;
+}
+exports.executeHelm = executeHelm;
+
+
+/***/ }),
+
+/***/ 275:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = void 0;
-const models_1 = __nccwpck_require__(143);
+const models_1 = __nccwpck_require__(165);
 exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
     {
         name: 'burst_limit',
@@ -3320,7 +3511,7 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
 
 /***/ }),
 
-/***/ 143:
+/***/ 165:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -3348,7 +3539,7 @@ var GithubActionInputType;
 
 /***/ }),
 
-/***/ 221:
+/***/ 518:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -3388,7 +3579,7 @@ exports.deleteTmpfile = deleteTmpfile;
 
 /***/ }),
 
-/***/ 491:
+/***/ 728:
 /***/ ((module) => {
 
 "use strict";
@@ -3428,7 +3619,7 @@ module.exports = require("fs");
 
 /***/ }),
 
-/***/ 181:
+/***/ 685:
 /***/ ((module) => {
 
 "use strict";
@@ -3530,149 +3721,11 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const fs = __nccwpck_require__(147);
-const core = __nccwpck_require__(398);
-const input_definitions_1 = __nccwpck_require__(840);
-const models_1 = __nccwpck_require__(143);
-const tmpfile_1 = __nccwpck_require__(221);
-const child_process_1 = __nccwpck_require__(81);
-function getPriority(input) {
-    if (input.value.priority === undefined) {
-        return 0;
-    }
-    else {
-        return input.value.priority;
-    }
-}
-function parseInputs(subcommand) {
-    const result = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION.map((input) => {
-        if (input.value.value === undefined || input.value.value === "") {
-            input.value.value = input.value.default;
-        }
-        input.value.value = parseValueByType(input);
-        validateInput(input, subcommand);
-        return input;
-    });
-    const genName = getValueForName("generate_name", result);
-    const releaseName = getInputEntry("release_name", result);
-    const releaseNameValue = releaseName.value.value;
-    // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
-    // a release name must be existent and these are the only two flags which can set it
-    if (((!genName && !releaseNameValue) || (genName && releaseNameValue)) && subcommand !== models_1.HelmSubcommand.None) {
-        if (releaseName.value.supported_subcommands.includes(subcommand)) {
-            throw Error("(only) one of `generate_name` or `release_name` must be set");
-        }
-    }
-    return handleFileInputs(result)
-        .sort((item1, item2) => getPriority(item2) - getPriority(item1));
-}
-function parseValueByType(input) {
-    const value = core.getInput(input.name);
-    // requirement validation will be done in `validateInput`
-    if (value === "" || value === undefined) {
-        if (input.value.type === models_1.GithubActionInputType.Boolean) {
-            return false;
-        }
-        return input.value.value;
-    }
-    switch (input.value.type) {
-        case models_1.GithubActionInputType.Boolean:
-            if (input.value.value === false || input.value.value === true) {
-                return input.value.value;
-            }
-            const val = value;
-            return val.toLowerCase() === "true";
-        case models_1.GithubActionInputType.Number:
-            return Number(value);
-        case models_1.GithubActionInputType.File:
-            return value;
-        case models_1.GithubActionInputType.Time:
-            return value;
-        case models_1.GithubActionInputType.String:
-            return value;
-    }
-}
-function handleFileInputs(inputs) {
-    return inputs.map((entry) => {
-        if (entry.value.type !== models_1.GithubActionInputType.File || entry.value.value === "") {
-            return entry;
-        }
-        if (fs.existsSync(entry.value.value)) {
-            console.info(`handle value from '${entry.name}' as filepath`);
-            return entry;
-        }
-        else {
-            console.info(`handle value from ${entry.name} as file content (generating temporary file)`);
-            const path = (0, tmpfile_1.writeTmpfile)(entry.value.value);
-            entry.value.value = path;
-            return entry;
-        }
-    });
-}
-function cleanupFiles(inputs) {
-    return inputs.forEach((entry) => {
-        if (entry.value.type !== models_1.GithubActionInputType.File || entry.value.value === "") {
-            return entry;
-        }
-        (0, tmpfile_1.deleteTmpfile)(entry.value.value);
-    });
-}
-function validateInput(input, subcommand) {
-    // since we support files for the subcommand, we should stil
-    if (subcommand === models_1.HelmSubcommand.None && input.value.type !== models_1.GithubActionInputType.File) {
-        return true;
-    }
-    const isSupportedSubcommand = input.value.supported_subcommands.includes(subcommand) || input.value.supported_subcommands.includes(models_1.HelmSubcommand.All);
-    const hasValue = input.value.value !== "" && input.value.value !== undefined;
-    const isFalseBoolean = input.value.type === models_1.GithubActionInputType.Boolean && input.value.value === false;
-    // default case is already handled in `parseInputs`
-    if (input.value.required && isSupportedSubcommand && !hasValue) {
-        throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`);
-    }
-    else if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
-        // boolean is set to false by default and will not be passed as a flag
-        throw Error(`${input.name} is not supported for ${subcommand}`);
-    }
-    return isSupportedSubcommand || subcommand === models_1.HelmSubcommand.None;
-}
-function inputsToHelmFlags(inputs) {
-    return inputs.map((input) => {
-        const flag = `--${input.name.replace(/_/g, "-")}`;
-        if (input.name === "ref" || input.name === "release_name" || input.name === "revision") {
-            return input.value.value;
-        }
-        else if (input.value.type === models_1.GithubActionInputType.Boolean) {
-            if (input.value.value) {
-                return flag;
-            }
-        }
-        else if (input.value.value !== "") {
-            const value = input.value.value || input.value.default;
-            return `${flag}=${value}`;
-        }
-        else {
-            return undefined;
-        }
-    }).filter((item) => item);
-}
-function getInputEntry(name, inputs) {
-    return inputs.find((item) => item.name === name);
-}
-function getValueForName(name, inputs) {
-    const item = getInputEntry(name, inputs);
-    return item.value.value;
-}
-function getInputsByType(type, inputs) {
-    return inputs.filter((item) => item.value.type === type);
-}
-function executeHelm(args) {
-    args = args.replace(/^helm /, "");
-    const command = `helm ${args}`;
-    console.log(`executing ${command}`);
-    const stdout = (0, child_process_1.execSync)(command).toString();
-    console.log(stdout);
-    return stdout;
-}
-let inputs = [];
+const core = __nccwpck_require__(696);
+const helper_1 = __nccwpck_require__(493);
+const input_definitions_1 = __nccwpck_require__(275);
+const models_1 = __nccwpck_require__(165);
+let inputs = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION;
 try {
     const rawSubcommand = core.getInput("subcommand");
     const subcommand = rawSubcommand;
@@ -3680,23 +3733,23 @@ try {
     if (subcommand === models_1.HelmSubcommand.None && rawCommand === "") {
         throw Error("either `subcommand` or `raw_command` has to be set");
     }
+    (0, helper_1.populateInputConfigValues)();
     let command = `${rawSubcommand}`;
     if (rawCommand !== "") {
-        inputs = getInputsByType(models_1.GithubActionInputType.File, inputs);
+        inputs = (0, helper_1.getInputsByType)(models_1.GithubActionInputType.File, inputs);
         command = `${rawCommand}`;
     }
     else {
-        inputs = parseInputs(subcommand);
+        (0, helper_1.validateReleaseName)(subcommand, inputs);
     }
-    const flags = inputsToHelmFlags(inputs).join(" ");
-    executeHelm(`${rawSubcommand} ${flags}`);
+    inputs = (0, helper_1.sortInputs)((0, helper_1.parseInputs)(subcommand, inputs));
+    const flags = (0, helper_1.inputsToHelmFlags)(inputs).join(" ");
+    (0, helper_1.executeHelm)(`${command} ${flags}`);
 }
 catch (error) {
     core.setFailed(error.message);
 }
-if (inputs.length > 0) {
-    cleanupFiles(inputs);
-}
+(0, helper_1.cleanupFiles)(inputs);
 
 })();
 
