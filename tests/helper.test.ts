@@ -1,4 +1,5 @@
-import { executeHelm, getInputsByType, getPriority, inputsToHelmFlags, isHelpOutput, parseInputs, populateInputConfigValues, sortInputs, validateReleaseName } from "../src/helper";
+const fs = require('fs');
+import { cleanupFiles, executeHelm, getInputsByType, getPriority, handleFileInputs, inputsToHelmFlags, isHelpOutput, parseInputs, populateInputConfigValues, sortInputs, validateReleaseName } from "../src/helper";
 import { PARSE_INPUTS_CONFIG, findInputConfig, SORT_INPUTS_CONFIG, VALIDATE_NAME_INPUTS_CONFIG, FLAGS_INPUTS_CONFIG } from "./fixtures";
 import { GithubActionInputEntry, GithubActionInputType, HelmSubcommand } from "../src/models";
 import { parse } from "path";
@@ -241,5 +242,27 @@ describe("testing helper#inputsForHelmFlags", () => {
         let input = <GithubActionInputEntry>findInputConfig("kubeconfig", FLAGS_INPUTS_CONFIG);
         input.value.value = "/tmp/asd";
         expect(inputsToHelmFlags([input])[0]).toBe("--kubeconfig=/tmp/asd")
+    });
+});
+
+describe("testing helper#handleFileInputs", () => {
+    test("existing file should be treated as a file", () => {
+        const path = "testHandleFileInputs";
+        fs.writeFileSync(path, "");
+        let input = <GithubActionInputEntry>findInputConfig("kubeconfig", FLAGS_INPUTS_CONFIG);
+        input.value.value = path;
+
+        input = handleFileInputs([input])[0];
+        expect(input.value.value).toBe(path);
+        fs.unlinkSync(path);
+    });
+    test("existing file should be treated as a file", () => {
+        let input = <GithubActionInputEntry>findInputConfig("kubeconfig", FLAGS_INPUTS_CONFIG);
+        input.value.value = "test123asd";
+
+        input = handleFileInputs([input])[0];
+        const content = fs.readFileSync(input.value.value).toString();
+        expect(content).toBe("test123asd");
+        cleanupFiles([input]);
     });
 });
