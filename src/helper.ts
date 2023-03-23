@@ -91,10 +91,6 @@ export function parseValueByType(input: GithubActionInputEntry): string | boolea
     const value = input.value.value;
     // requirement validation will be done in `validateInput`
     if (value === "" || value === undefined) {
-        if (input.value.type === GithubActionInputType.Boolean) {
-            return false;
-        }
-
         return input.value.value;
     }
 
@@ -105,7 +101,14 @@ export function parseValueByType(input: GithubActionInputEntry): string | boolea
             }
 
             const val = <string>value;
-            return val.toLowerCase() === "true";
+            switch (val.toLowerCase()) {
+                case "true":
+                    return true;
+                case "false":
+                    return false;
+                default:
+                    return undefined;
+            }
         case GithubActionInputType.Number:
             return Number(value);
         case GithubActionInputType.File:
