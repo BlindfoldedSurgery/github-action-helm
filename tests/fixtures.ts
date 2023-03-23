@@ -121,3 +121,84 @@ export const SORT_INPUTS_CONFIG: GithubActionInputEntry[] = [
         },
     }
 ];
+
+export const FLAGS_INPUTS_CONFIG: GithubActionInputEntry[] = [
+    {
+        name: 'ref',
+        value: {
+            description: '',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.All],
+            type: GithubActionInputType.Boolean,
+            priority: 2,
+        },
+    }, {
+        name: 'release_name',
+        value: {
+            description: '',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.All],
+            type: GithubActionInputType.String,
+            priority: 1,
+        },
+    }, {
+        name: 'revision',
+        value: {
+            description: '',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.All],
+            type: GithubActionInputType.String,
+            priority: 3,
+        },
+    }, {
+        name: 'kubeconfig',
+        value: {
+            description: '',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.All],
+            type: GithubActionInputType.File,
+            priority: 3,
+        },
+    }, {
+        name: 'timeout',
+        value: {
+            description: '',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.All],
+            type: GithubActionInputType.Number,
+            priority: 3,
+        },
+    }, {
+        name: 'atomic',
+        value: {
+            description: '',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.All],
+            type: GithubActionInputType.Boolean,
+            priority: 3,
+        },
+    }, {
+        name: 'namespace',
+        value: {
+            description: '',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.All],
+            type: GithubActionInputType.String,
+            priority: 3,
+        },
+    }
+];

@@ -1,5 +1,5 @@
-import { executeHelm, getInputsByType, getPriority, isHelpOutput, parseInputs, populateInputConfigValues, sortInputs, validateReleaseName } from "../src/helper";
-import { PARSE_INPUTS_CONFIG, findInputConfig, SORT_INPUTS_CONFIG, VALIDATE_NAME_INPUTS_CONFIG } from "./fixtures";
+import { executeHelm, getInputsByType, getPriority, inputsToHelmFlags, isHelpOutput, parseInputs, populateInputConfigValues, sortInputs, validateReleaseName } from "../src/helper";
+import { PARSE_INPUTS_CONFIG, findInputConfig, SORT_INPUTS_CONFIG, VALIDATE_NAME_INPUTS_CONFIG, FLAGS_INPUTS_CONFIG } from "./fixtures";
 import { GithubActionInputEntry, GithubActionInputType, HelmSubcommand } from "../src/models";
 import { parse } from "path";
 
@@ -184,7 +184,7 @@ describe("testing helper#isHelpOutput", () => {
     test("should not be help output if an empty string is passed", () => {
         expect(isHelpOutput("")).toBe(false);
     });
-})
+});
 
 describe("testing helper#getInputsByType", () => {
     test("should return only boolean", () => {
@@ -199,4 +199,47 @@ describe("testing helper#getInputsByType", () => {
     test("should return only file", () => {
         expect(getInputsByType(GithubActionInputType.File, PARSE_INPUTS_CONFIG)[0].value.type).toBe(GithubActionInputType.File);
     });
-})
+});
+
+describe("testing helper#inputsForHelmFlags", () => {
+    test("check that ref is treated as value only", () => {
+        let input = <GithubActionInputEntry>findInputConfig("ref", FLAGS_INPUTS_CONFIG);
+        input.value.value = "test";
+        expect(inputsToHelmFlags([input])[0]).toBe("test")
+    });
+    test("check that revision is treated as value only", () => {
+        let input = <GithubActionInputEntry>findInputConfig("revision", FLAGS_INPUTS_CONFIG);
+        input.value.value = "test";
+        expect(inputsToHelmFlags([input])[0]).toBe("test")
+    });
+    test("check that release_name is treated as value only", () => {
+        let input = <GithubActionInputEntry>findInputConfig("release_name", FLAGS_INPUTS_CONFIG);
+        input.value.value = "test";
+        expect(inputsToHelmFlags([input])[0]).toBe("test")
+    });
+    test("check that truthy boolean is converted to a flag", () => {
+        let input = <GithubActionInputEntry>findInputConfig("atomic", FLAGS_INPUTS_CONFIG);
+        input.value.value = true;
+        expect(inputsToHelmFlags([input])[0]).toBe("--atomic")
+    });
+    test("check that falsy boolean is not converted to a flag", () => {
+        let input = <GithubActionInputEntry>findInputConfig("atomic", FLAGS_INPUTS_CONFIG);
+        input.value.value = false;
+        expect(inputsToHelmFlags([input])).toStrictEqual([])
+    });
+    test("check that number is passed to the flag", () => {
+        let input = <GithubActionInputEntry>findInputConfig("timeout", FLAGS_INPUTS_CONFIG);
+        input.value.value = 60;
+        expect(inputsToHelmFlags([input])[0]).toBe("--timeout=60")
+    });
+    test("check that string is passed to the flag", () => {
+        let input = <GithubActionInputEntry>findInputConfig("namespace", FLAGS_INPUTS_CONFIG);
+        input.value.value = "asd";
+        expect(inputsToHelmFlags([input])[0]).toBe("--namespace=asd")
+    });
+    test("check that string is passed to the flag", () => {
+        let input = <GithubActionInputEntry>findInputConfig("kubeconfig", FLAGS_INPUTS_CONFIG);
+        input.value.value = "/tmp/asd";
+        expect(inputsToHelmFlags([input])[0]).toBe("--kubeconfig=/tmp/asd")
+    });
+});
