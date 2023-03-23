@@ -1,4 +1,4 @@
-import { getPriority, parseInputs } from "../src/helper";
+import { getPriority, parseInputs, populateInputConfigValues } from "../src/helper";
 import { PARSE_INPUTS_CONFIG } from "./fixtures";
 import { HelmSubcommand } from "../src/models";
 
@@ -24,6 +24,7 @@ describe("testing index#parseInputs", () => {
     test("input with type boolean and value `true` should return the correct result", () => {
         let input = PARSE_INPUTS_CONFIG[0];
         setEnvVar(input.name, "true");
+        populateInputConfigValues(PARSE_INPUTS_CONFIG);
         let inputs = parseInputs(HelmSubcommand.All, [input]);
 
         expect(inputs[0].value.value).toBe(true);
@@ -31,6 +32,7 @@ describe("testing index#parseInputs", () => {
     test("input with type boolean and value `false` should return the correct result", () => {
         let input = PARSE_INPUTS_CONFIG[0];
         setEnvVar(input.name, "false");
+        populateInputConfigValues(PARSE_INPUTS_CONFIG);
         let inputs = parseInputs(HelmSubcommand.All, [input]);
 
         expect(inputs[0].value.value).toBe(false);
