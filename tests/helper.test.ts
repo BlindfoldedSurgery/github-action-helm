@@ -37,4 +37,33 @@ describe("testing index#parseInputs", () => {
 
         expect(inputs[0].value.value).toBe(false);
     });
+    test("input with type boolean and value `1` should throw an error", () => {
+        let input = PARSE_INPUTS_CONFIG[0];
+        setEnvVar(input.name, "1");
+        populateInputConfigValues(PARSE_INPUTS_CONFIG);
+
+        expect(() => parseInputs(HelmSubcommand.All, [input])).toThrow();
+    });
+    test("input with type number and value `1` should return the correct result", () => {
+        let input = PARSE_INPUTS_CONFIG[1];
+        setEnvVar(input.name, "1");
+        populateInputConfigValues(PARSE_INPUTS_CONFIG);
+        let inputs = parseInputs(HelmSubcommand.All, [input]);
+
+        expect(inputs[0].value.value).toBe(1);
+    });
+    test("input with type number and value `testString` should throw an error", () => {
+        let input = PARSE_INPUTS_CONFIG[1];
+        setEnvVar(input.name, "testString");
+        populateInputConfigValues(PARSE_INPUTS_CONFIG);
+        expect(() => parseInputs(HelmSubcommand.All, [input])).toThrow();
+    });
+    test("input with type string and value `testString` should return the correct result", () => {
+        let input = PARSE_INPUTS_CONFIG[2];
+        setEnvVar(input.name, "testString");
+        populateInputConfigValues(PARSE_INPUTS_CONFIG);
+        let inputs = parseInputs(HelmSubcommand.All, [input]);
+
+        expect(inputs[0].value.value).toBe("testString");
+    });
 });
