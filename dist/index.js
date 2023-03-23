@@ -2694,7 +2694,7 @@ exports["default"] = _default;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.executeHelm = exports.getInputsByType = exports.getValueForName = exports.getInputEntry = exports.inputsToHelmFlags = exports.cleanupFiles = exports.handleFileInputs = exports.parseValueByType = exports.validateInput = exports.parseInputs = exports.populateInputConfigValues = exports.sortInputs = exports.validateReleaseName = exports.getPriority = void 0;
+exports.isHelpOutput = exports.executeHelm = exports.getInputsByType = exports.getValueForName = exports.getInputEntry = exports.inputsToHelmFlags = exports.cleanupFiles = exports.handleFileInputs = exports.parseValueByType = exports.validateInput = exports.parseInputs = exports.populateInputConfigValues = exports.sortInputs = exports.validateReleaseName = exports.getPriority = void 0;
 const fs = __nccwpck_require__(147);
 const core = __nccwpck_require__(696);
 const input_definitions_1 = __nccwpck_require__(275);
@@ -2828,7 +2828,10 @@ function cleanupFiles(inputs) {
         if (entry.value.type !== models_1.GithubActionInputType.File || entry.value.value === "") {
             return entry;
         }
-        (0, tmpfile_1.deleteTmpfile)(entry.value.value);
+        const value = entry.value.value;
+        if (value !== undefined) {
+            (0, tmpfile_1.deleteTmpfile)(value);
+        }
     });
 }
 exports.cleanupFiles = cleanupFiles;
@@ -2875,6 +2878,11 @@ function executeHelm(args) {
     return stdout;
 }
 exports.executeHelm = executeHelm;
+function isHelpOutput(stdout) {
+    stdout = stdout.toLowerCase();
+    return stdout.includes("available commands") && stdout.includes("usage") && stdout.includes("helm [command]");
+}
+exports.isHelpOutput = isHelpOutput;
 
 
 /***/ }),
@@ -3744,7 +3752,10 @@ try {
     }
     inputs = (0, helper_1.sortInputs)((0, helper_1.parseInputs)(subcommand, inputs));
     const flags = (0, helper_1.inputsToHelmFlags)(inputs).join(" ");
-    (0, helper_1.executeHelm)(`${command} ${flags}`);
+    const stdout = (0, helper_1.executeHelm)(`${command} ${flags}`);
+    if ((0, helper_1.isHelpOutput)(stdout)) {
+        throw Error(`failing due to detected helm help output in ${stdout}`);
+    }
 }
 catch (error) {
     core.setFailed(error.message);

@@ -190,3 +190,8 @@ export function executeHelm(args: string): string {
 
     return stdout;
 }
+
+export function isHelpOutput(stdout: string): boolean {
+    stdout = stdout.toLowerCase();
+    return stdout.includes("available commands") && stdout.includes("usage") && stdout.includes("helm [command]");
+}
