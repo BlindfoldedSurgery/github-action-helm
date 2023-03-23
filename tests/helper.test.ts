@@ -96,4 +96,20 @@ describe("testing index#validateReleaseName", () => {
 
         expect(() => validateReleaseName(subcommand, inputs)).toThrow();
     });
+    test("subcommand.ALL should succeed when generate name is set (not release name)", () => {
+        setEnvVar("generate_name", "true");
+        let inputs = populateInputConfigValues(VALIDATE_NAME_INPUTS_CONFIG);
+        inputs = parseInputs(HelmSubcommand.All, inputs);
+        const subcommand = HelmSubcommand.All;
+
+        validateReleaseName(subcommand, inputs);
+    });
+    test("subcommand.ALL should succeed when release name is set (not generate name)", () => {
+        setEnvVar("release_name", "test");
+        let inputs = populateInputConfigValues(VALIDATE_NAME_INPUTS_CONFIG);
+        inputs = parseInputs(HelmSubcommand.All, inputs);
+        const subcommand = HelmSubcommand.All;
+
+        validateReleaseName(subcommand, inputs);
+    });
 });
