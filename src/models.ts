@@ -17,8 +17,6 @@ export enum GithubActionInputType {
 
 export type GithubActionInputEntryData = {
     description: string
-    required: boolean
-    default: string
     value: string | boolean | number | undefined
     supported_subcommands: HelmSubcommand[],
     type: GithubActionInputType,

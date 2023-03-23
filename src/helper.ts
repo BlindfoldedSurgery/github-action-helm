@@ -46,9 +46,6 @@ export function populateInputConfigValues(config: GithubActionInputEntry[] = GIT
 
 export function parseInputs(subcommand: HelmSubcommand, config: GithubActionInputEntry[] = GITHUB_ACTIONS_INPUT_CONFIGURATION): GithubActionInputEntry[] {
     const result = config.map((input: GithubActionInputEntry) => {
-        if (input.value.value === undefined || input.value.value === "") {
-            input.value.value = input.value.default;
-        }
         input.value.value = parseValueByType(input);
         validateInput(input, subcommand);
         return input;
@@ -66,10 +63,7 @@ export function validateInput(input: GithubActionInputEntry, subcommand: HelmSub
     const hasValue = input.value.value !== "" && input.value.value !== undefined;
     const isFalseBoolean = input.value.type === GithubActionInputType.Boolean && input.value.value === false;
 
-    // default case is already handled in `parseInputs`
-    if (input.value.required && isSupportedSubcommand && !hasValue) {
-        throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`)
-    } else if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
+    if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
         // boolean is set to false by default and will not be passed as a flag
         throw Error(`${input.name} is not supported for ${subcommand}`);
     }
@@ -158,7 +152,7 @@ export function inputsToHelmFlags(inputs: GithubActionInputEntry[]): string[] {
                 return flag;
             }
         } else if (input.value.value !== "") {
-            const value = input.value.value || input.value.default;
+            const value = input.value.value;
 
             return `${flag}=${value}`
         } else {
