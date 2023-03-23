@@ -1,6 +1,6 @@
-import { executeHelm, getPriority, isHelpOutput, parseInputs, populateInputConfigValues, sortInputs, validateReleaseName } from "../src/helper";
+import { executeHelm, getInputsByType, getPriority, isHelpOutput, parseInputs, populateInputConfigValues, sortInputs, validateReleaseName } from "../src/helper";
 import { PARSE_INPUTS_CONFIG, findInputConfig, SORT_INPUTS_CONFIG, VALIDATE_NAME_INPUTS_CONFIG } from "./fixtures";
-import { GithubActionInputEntry, HelmSubcommand } from "../src/models";
+import { GithubActionInputEntry, GithubActionInputType, HelmSubcommand } from "../src/models";
 import { parse } from "path";
 
 function setEnvVar(inputName: string, value: string) {
@@ -183,5 +183,20 @@ describe("testing helper#isHelpOutput", () => {
     });
     test("should not be help output if an empty string is passed", () => {
         expect(isHelpOutput("")).toBe(false);
+    });
+})
+
+describe("testing helper#getInputsByType", () => {
+    test("should return only boolean", () => {
+        expect(getInputsByType(GithubActionInputType.Boolean, PARSE_INPUTS_CONFIG)[0].value.type).toBe(GithubActionInputType.Boolean);
+    });
+    test("should return only number", () => {
+        expect(getInputsByType(GithubActionInputType.Number, PARSE_INPUTS_CONFIG)[0].value.type).toBe(GithubActionInputType.Number);
+    });
+    test("should return only string", () => {
+        expect(getInputsByType(GithubActionInputType.String, PARSE_INPUTS_CONFIG)[0].value.type).toBe(GithubActionInputType.String);
+    });
+    test("should return only file", () => {
+        expect(getInputsByType(GithubActionInputType.File, PARSE_INPUTS_CONFIG)[0].value.type).toBe(GithubActionInputType.File);
     });
 })
