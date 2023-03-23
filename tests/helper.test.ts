@@ -1,5 +1,5 @@
-import { getPriority, parseInputs, populateInputConfigValues, validateReleaseName } from "../src/helper";
-import { PARSE_INPUTS_CONFIG, findInputConfig, VALIDATE_NAME_INPUTS_CONFIG } from "./fixtures";
+import { getPriority, parseInputs, populateInputConfigValues, sortInputs, validateReleaseName } from "../src/helper";
+import { PARSE_INPUTS_CONFIG, findInputConfig, SORT_INPUTS_CONFIG, VALIDATE_NAME_INPUTS_CONFIG } from "./fixtures";
 import { HelmSubcommand } from "../src/models";
 
 function setEnvVar(inputName: string, value: string) {
@@ -80,7 +80,7 @@ describe("testing index#parseInputs", () => {
     });
 });
 
-describe("testing index#validateReleaseName", () => {
+describe("testing helper#validateReleaseName", () => {
     test("subcommand.ALL should throw when nothing is set", () => {
         let inputs = parseInputs(HelmSubcommand.All, []);
         const subcommand = HelmSubcommand.All;
@@ -111,5 +111,16 @@ describe("testing index#validateReleaseName", () => {
         const subcommand = HelmSubcommand.All;
 
         validateReleaseName(subcommand, inputs);
+    });
+});
+
+describe("testing helper#sortInputs", () => {
+    test("inputs should be sorted by priority", () => {
+        let inputs = populateInputConfigValues(SORT_INPUTS_CONFIG);
+        inputs = sortInputs(inputs);
+
+        expect(inputs[0].value.priority).toBe(3);
+        expect(inputs[1].value.priority).toBe(2);
+        expect(inputs[2].value.priority).toBe(1);
     });
 });

@@ -84,3 +84,40 @@ export const VALIDATE_NAME_INPUTS_CONFIG: GithubActionInputEntry[] = [
         },
     }
 ]
+
+export const SORT_INPUTS_CONFIG: GithubActionInputEntry[] = [
+    {
+        name: '2',
+        value: {
+            description: '',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.All],
+            type: GithubActionInputType.Boolean,
+            priority: 2,
+        },
+    }, {
+        name: '1',
+        value: {
+            description: '',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.All],
+            type: GithubActionInputType.String,
+            priority: 1,
+        },
+    }, {
+        name: '3',
+        value: {
+            description: '',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.All],
+            type: GithubActionInputType.String,
+            priority: 3,
+        },
+    }
+];
