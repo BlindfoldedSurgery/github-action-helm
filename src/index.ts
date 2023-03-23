@@ -1,6 +1,6 @@
 const fs = require('fs');
 const core = require('@actions/core');
-import { getInputsByType, parseInputs, inputsToHelmFlags, executeHelm, cleanupFiles, validateReleaseName, sortInputs, populateInputConfigValues } from "./helper";
+import { getInputsByType, parseInputs, inputsToHelmFlags, executeHelm, cleanupFiles, validateReleaseName, sortInputs, populateInputConfigValues, isHelpOutput } from "./helper";
 import { GITHUB_ACTIONS_INPUT_CONFIGURATION } from "./input_definitions";
 import { GithubActionInputEntry, GithubActionInputType, HelmSubcommand } from "./models";
 
@@ -26,7 +26,11 @@ try {
     inputs = sortInputs(parseInputs(subcommand, inputs));
     const flags = inputsToHelmFlags(inputs).join(" ");
 
-    executeHelm(`${command} ${flags}`);
+    const stdout = executeHelm(`${command} ${flags}`);
+    if (isHelpOutput(stdout)) {
+        throw Error(`failing due to detected helm help output`);
+    }
+
 } catch (error: any) {
     core.setFailed(error.message);
 }

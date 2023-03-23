@@ -1,0 +1,5 @@
+apiVersion: v2
+name: lint-failure
+description: fail linting to test exit code propagation
+type: application
+version: 0.1.0
