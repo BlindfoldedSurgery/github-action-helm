@@ -37,7 +37,7 @@ export function sortInputs(inputs: GithubActionInputEntry[]): GithubActionInputE
 export function populateInputConfigValues(config: GithubActionInputEntry[] = GITHUB_ACTIONS_INPUT_CONFIGURATION): GithubActionInputEntry[] {
     return config.map((input: GithubActionInputEntry) => {
         input.value.value = core.getInput(input.name);
-    
+
         return input;
     })
 }

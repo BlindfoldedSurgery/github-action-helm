@@ -1,4 +1,4 @@
-import { getPriority, parseInputs, populateInputConfigValues, sortInputs, validateReleaseName } from "../src/helper";
+import { executeHelm, getPriority, isHelpOutput, parseInputs, populateInputConfigValues, sortInputs, validateReleaseName } from "../src/helper";
 import { PARSE_INPUTS_CONFIG, findInputConfig, SORT_INPUTS_CONFIG, VALIDATE_NAME_INPUTS_CONFIG } from "./fixtures";
 import { GithubActionInputEntry, HelmSubcommand } from "../src/models";
 import { parse } from "path";
@@ -174,3 +174,14 @@ describe("testing helper#parseValueByType", () => {
         expect(parseInputs(HelmSubcommand.All, [input])[0].value.value).toBe("true");
     });
 });
+
+describe("testing helper#isHelpOutput", () => {
+    test("should be help output if no args are passed", () => {
+        const stdout = executeHelm("");
+
+        expect(isHelpOutput(stdout)).toBe(true);
+    });
+    test("should not be help output if an empty string is passed", () => {
+        expect(isHelpOutput("")).toBe(false);
+    });
+})
