@@ -7,6 +7,18 @@ function setEnvVar(inputName: string, value: string) {
     process.env[name] = value;
 }
 
+function resetEnvironment() {
+    for (const key in process.env) {
+        if (key.startsWith("INPUT_")) {
+            process.env[key] = "";
+        }
+    }
+}
+
+afterEach(() => {
+    resetEnvironment();
+  });
+
 describe("testing index#getPriority", () => {
     test("should return 0 when priority is undefined", () => {
         let input = PARSE_INPUTS_CONFIG[0];
