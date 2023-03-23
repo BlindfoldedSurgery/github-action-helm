@@ -141,7 +141,10 @@ export function cleanupFiles(inputs: GithubActionInputEntry[]) {
             return entry;
         }
 
-        deleteTmpfile(<string>entry.value.value);
+        const value = <string>entry.value.value;
+        if (value !== undefined) {
+            deleteTmpfile(value);
+        }
     })
 }
 
@@ -186,4 +189,9 @@ export function executeHelm(args: string): string {
     console.log(stdout);
 
     return stdout;
+}
+
+export function isHelpOutput(stdout: string): boolean {
+    stdout = stdout.toLowerCase();
+    return stdout.includes("available commands") && stdout.includes("usage") && stdout.includes("helm [command]");
 }
