@@ -1,4 +1,11 @@
 import { HelmSubcommand, GithubActionInputType, GithubActionInputEntry } from "../src/models";
+import { GITHUB_ACTIONS_INPUT_CONFIGURATION } from "../src/input_definitions";
+
+export function findInputConfig(name: string): GithubActionInputEntry | undefined {
+    return GITHUB_ACTIONS_INPUT_CONFIGURATION.find((entry: GithubActionInputEntry) => {
+        return entry.name === name;
+    });
+}
 
 export const PARSE_INPUTS_CONFIG: GithubActionInputEntry[] = [
     {
@@ -52,4 +59,28 @@ export const PARSE_INPUTS_CONFIG: GithubActionInputEntry[] = [
             type: GithubActionInputType.File,
         },
     },
+]
+
+export const VALIDATE_NAME_INPUTS_CONFIG: GithubActionInputEntry[] = [
+    {
+        name: 'generate_name',
+        value: {
+            description: '',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.All],
+            type: GithubActionInputType.Boolean,
+        },
+    }, {
+        name: 'release_name',
+        value: {
+            description: '',
+            required: false,
+            default: '',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.All],
+            type: GithubActionInputType.String,
+        },
+    }
 ]

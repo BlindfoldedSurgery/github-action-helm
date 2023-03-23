@@ -89,6 +89,10 @@ export function parseValueByType(input: GithubActionInputEntry): string | boolea
     const value = input.value.value;
     // requirement validation will be done in `validateInput`
     if (value === "" || value === undefined) {
+        if (input.value.type === GithubActionInputType.Boolean) {
+            return false;
+        }
+
         return input.value.value;
     }
 
