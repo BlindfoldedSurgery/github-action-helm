@@ -12,8 +12,6 @@ export const PARSE_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'boolean',
         value: {
             description: 'client-side default throttling limit (default 100)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.Boolean,
@@ -22,8 +20,6 @@ export const PARSE_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'number',
         value: {
             description: 'client-side default throttling limit (default 100)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.Number,
@@ -32,8 +28,6 @@ export const PARSE_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'string',
         value: {
             description: 'client-side default throttling limit (default 100)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.String,
@@ -42,8 +36,6 @@ export const PARSE_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'time',
         value: {
             description: 'client-side default throttling limit (default 100)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.Time,
@@ -52,8 +44,6 @@ export const PARSE_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'file',
         value: {
             description: 'client-side default throttling limit (default 100)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.File,
@@ -66,8 +56,6 @@ export const VALIDATE_NAME_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'generate_name',
         value: {
             description: '',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.Boolean,
@@ -76,8 +64,6 @@ export const VALIDATE_NAME_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'release_name',
         value: {
             description: '',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.String,
@@ -90,8 +76,6 @@ export const SORT_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: '2',
         value: {
             description: '',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.Boolean,
@@ -101,8 +85,6 @@ export const SORT_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: '1',
         value: {
             description: '',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.String,
@@ -112,8 +94,6 @@ export const SORT_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: '3',
         value: {
             description: '',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.String,
@@ -127,8 +107,6 @@ export const FLAGS_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'ref',
         value: {
             description: '',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.Boolean,
@@ -138,8 +116,6 @@ export const FLAGS_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'release_name',
         value: {
             description: '',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.String,
@@ -149,8 +125,6 @@ export const FLAGS_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'revision',
         value: {
             description: '',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.String,
@@ -160,8 +134,6 @@ export const FLAGS_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'kubeconfig',
         value: {
             description: '',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.File,
@@ -171,8 +143,6 @@ export const FLAGS_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'timeout',
         value: {
             description: '',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.Number,
@@ -182,8 +152,6 @@ export const FLAGS_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'atomic',
         value: {
             description: '',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.Boolean,
@@ -193,8 +161,6 @@ export const FLAGS_INPUTS_CONFIG: GithubActionInputEntry[] = [
         name: 'namespace',
         value: {
             description: '',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [HelmSubcommand.All],
             type: GithubActionInputType.String,
