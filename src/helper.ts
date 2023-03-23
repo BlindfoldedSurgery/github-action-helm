@@ -56,7 +56,6 @@ export function parseInputs(subcommand: HelmSubcommand, config: GithubActionInpu
 }
 
 export function validateInput(input: GithubActionInputEntry, subcommand: HelmSubcommand): boolean {
-    // since we support files for the subcommand, we should stil
     if (subcommand === HelmSubcommand.None && input.value.type !== GithubActionInputType.File) {
         return true;
     }
@@ -112,6 +111,10 @@ export function parseValueByType(input: GithubActionInputEntry): string | boolea
                     return undefined;
             }
         case GithubActionInputType.Number:
+            const strval = String(value).toLowerCase();
+            if (strval === "true" || strval === "false") {
+                throw Error("boolean value won't be auto-converted to a number, use `0`/`1` respectively");
+            }
             return Number(value);
         case GithubActionInputType.File:
             return value;
