@@ -1,6 +1,7 @@
 import { getPriority, parseInputs, populateInputConfigValues, sortInputs, validateReleaseName } from "../src/helper";
 import { PARSE_INPUTS_CONFIG, findInputConfig, SORT_INPUTS_CONFIG, VALIDATE_NAME_INPUTS_CONFIG } from "./fixtures";
-import { HelmSubcommand } from "../src/models";
+import { GithubActionInputEntry, HelmSubcommand } from "../src/models";
+import { parse } from "path";
 
 function setEnvVar(inputName: string, value: string) {
     const name = `INPUT_${inputName.toLocaleUpperCase()}`;
@@ -17,9 +18,9 @@ function resetEnvironment() {
 
 afterEach(() => {
     resetEnvironment();
-  });
+});
 
-describe("testing index#getPriority", () => {
+describe("testing helper#getPriority", () => {
     test("should return 0 when priority is undefined", () => {
         let input = PARSE_INPUTS_CONFIG[0];
         input.value.priority = undefined;
@@ -32,7 +33,7 @@ describe("testing index#getPriority", () => {
     });
 });
 
-describe("testing index#parseInputs", () => {
+describe("testing helper#parseInputs", () => {
     test("input with type boolean and value `true` should return the correct result", () => {
         let input = PARSE_INPUTS_CONFIG[0];
         setEnvVar(input.name, "true");
@@ -67,6 +68,12 @@ describe("testing index#parseInputs", () => {
     test("input with type number and value `testString` should throw an error", () => {
         let input = PARSE_INPUTS_CONFIG[1];
         setEnvVar(input.name, "testString");
+        let inputs = populateInputConfigValues([input]);
+        expect(() => parseInputs(HelmSubcommand.All, inputs)).toThrow();
+    });
+    test("input with type number and value `true` should throw an error", () => {
+        let input = PARSE_INPUTS_CONFIG[1];
+        setEnvVar(input.name, "true");
         let inputs = populateInputConfigValues([input]);
         expect(() => parseInputs(HelmSubcommand.All, inputs)).toThrow();
     });
@@ -122,5 +129,48 @@ describe("testing helper#sortInputs", () => {
         expect(inputs[0].value.priority).toBe(3);
         expect(inputs[1].value.priority).toBe(2);
         expect(inputs[2].value.priority).toBe(1);
+    });
+});
+
+describe("testing helper#parseValueByType", () => {
+    test("boolean input with value undefined should be false", () => {
+        let input = <GithubActionInputEntry>findInputConfig("boolean", PARSE_INPUTS_CONFIG);
+        input.value.value = undefined;
+        expect(parseInputs(HelmSubcommand.All, [input])[0].value.value).toBe(false);
+    });
+    test("boolean input with value false should be false", () => {
+        let input = <GithubActionInputEntry>findInputConfig("boolean", PARSE_INPUTS_CONFIG);
+        input.value.value = false;
+        expect(parseInputs(HelmSubcommand.All, [input])[0].value.value).toBe(false);
+    });
+    test("boolean input with value true should be true", () => {
+        let input = <GithubActionInputEntry>findInputConfig("boolean", PARSE_INPUTS_CONFIG);
+        input.value.value = true;
+        expect(parseInputs(HelmSubcommand.All, [input])[0].value.value).toBe(true);
+    });
+    test("boolean input with value 1 should throw", () => {
+        let input = <GithubActionInputEntry>findInputConfig("boolean", PARSE_INPUTS_CONFIG);
+        input.value.value = 1;
+        expect(() => parseInputs(HelmSubcommand.All, [input])[0].value.value).toThrow();
+    });
+    test("number input with value 1 should be 1", () => {
+        let input = <GithubActionInputEntry>findInputConfig("number", PARSE_INPUTS_CONFIG);
+        input.value.value = 1;
+        expect(parseInputs(HelmSubcommand.All, [input])[0].value.value).toBe(1);
+    });
+    test("number input with value 'ads' should throw", () => {
+        let input = <GithubActionInputEntry>findInputConfig("number", PARSE_INPUTS_CONFIG);
+        input.value.value = "ads";
+        expect(() => parseInputs(HelmSubcommand.All, [input])[0].value.value).toThrow();
+    });
+    test("number input with value 'true' should throw", () => {
+        let input = <GithubActionInputEntry>findInputConfig("number", PARSE_INPUTS_CONFIG);
+        input.value.value = true;
+        expect(() => parseInputs(HelmSubcommand.All, [input])[0].value.value).toThrow();
+    });
+    test("string input with value 'true' should return 'true'", () => {
+        let input = <GithubActionInputEntry>findInputConfig("string", PARSE_INPUTS_CONFIG);
+        input.value.value = "true";
+        expect(parseInputs(HelmSubcommand.All, [input])[0].value.value).toBe("true");
     });
 });

@@ -1,8 +1,8 @@
 import { HelmSubcommand, GithubActionInputType, GithubActionInputEntry } from "../src/models";
 import { GITHUB_ACTIONS_INPUT_CONFIGURATION } from "../src/input_definitions";
 
-export function findInputConfig(name: string): GithubActionInputEntry | undefined {
-    return GITHUB_ACTIONS_INPUT_CONFIGURATION.find((entry: GithubActionInputEntry) => {
+export function findInputConfig(name: string, inputs: GithubActionInputEntry[]): GithubActionInputEntry | undefined {
+    return inputs.find((entry: GithubActionInputEntry) => {
         return entry.name === name;
     });
 }
