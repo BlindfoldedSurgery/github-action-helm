@@ -141,7 +141,10 @@ export function cleanupFiles(inputs: GithubActionInputEntry[]) {
             return entry;
         }
 
-        deleteTmpfile(<string>entry.value.value);
+        const value = <string>entry.value.value;
+        if (value !== undefined) {
+            deleteTmpfile(value);
+        }
     })
 }
 
