@@ -14,11 +14,11 @@ export function getPriority(input: GithubActionInputEntry): number {
     }
 }
 
-export function validateReleaseName(subcommand: HelmSubcommand, inputs: GithubActionInputEntry[]): Boolean {
+export function validateReleaseName(subcommand: HelmSubcommand, inputs: GithubActionInputEntry[]) {
     const genName = getValueForName("generate_name", inputs);
     const releaseName = getInputEntry("release_name", inputs);
-    const releaseNameIsSome = releaseName.value.value !== "";
 
+    const releaseNameIsSome = releaseName.value.value !== "";
     const twoSet = (genName === true) && releaseNameIsSome;
     const noneSet = !genName && !releaseNameIsSome;
     // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
@@ -28,8 +28,6 @@ export function validateReleaseName(subcommand: HelmSubcommand, inputs: GithubAc
             throw Error("(only) one of `generate_name` or `release_name` must be set");
         }
     }
-
-    return true;
 }
 
 export function sortInputs(inputs: GithubActionInputEntry[]): GithubActionInputEntry[] {
@@ -55,7 +53,6 @@ export function parseInputs(subcommand: HelmSubcommand, config: GithubActionInpu
 }
 
 export function validateInput(input: GithubActionInputEntry, subcommand: HelmSubcommand): boolean {
-    // since we support files for the subcommand, we should stil
     if (subcommand === HelmSubcommand.None && input.value.type !== GithubActionInputType.File) {
         return true;
     }
@@ -99,8 +96,19 @@ export function parseValueByType(input: GithubActionInputEntry): string | boolea
             }
 
             const val = <string>value;
-            return val.toLowerCase() === "true";
+            switch (val.toLowerCase()) {
+                case "true":
+                    return true;
+                case "false":
+                    return false;
+                default:
+                    return undefined;
+            }
         case GithubActionInputType.Number:
+            const strval = String(value).toLowerCase();
+            if (strval === "true" || strval === "false") {
+                throw Error("boolean value won't be auto-converted to a number, use `0`/`1` respectively");
+            }
             return Number(value);
         case GithubActionInputType.File:
             return value;
