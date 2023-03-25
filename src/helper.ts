@@ -14,11 +14,11 @@ export function getPriority(input: GithubActionInputEntry): number {
     }
 }
 
-export function validateReleaseName(subcommand: HelmSubcommand, inputs: GithubActionInputEntry[]): Boolean {
+export function validateReleaseName(subcommand: HelmSubcommand, inputs: GithubActionInputEntry[]) {
     const genName = getValueForName("generate_name", inputs);
     const releaseName = getInputEntry("release_name", inputs);
-    const releaseNameIsSome = releaseName.value.value !== "";
 
+    const releaseNameIsSome = releaseName.value.value !== "";
     const twoSet = (genName === true) && releaseNameIsSome;
     const noneSet = !genName && !releaseNameIsSome;
     // several subcommands (e.g. uninstall) only accept release_name, this is ensured by the `supported_subcommands`
@@ -28,8 +28,6 @@ export function validateReleaseName(subcommand: HelmSubcommand, inputs: GithubAc
             throw Error("(only) one of `generate_name` or `release_name` must be set");
         }
     }
-
-    return true;
 }
 
 export function sortInputs(inputs: GithubActionInputEntry[]): GithubActionInputEntry[] {
@@ -46,9 +44,6 @@ export function populateInputConfigValues(config: GithubActionInputEntry[] = GIT
 
 export function parseInputs(subcommand: HelmSubcommand, config: GithubActionInputEntry[] = GITHUB_ACTIONS_INPUT_CONFIGURATION): GithubActionInputEntry[] {
     const result = config.map((input: GithubActionInputEntry) => {
-        if (input.value.value === undefined || input.value.value === "") {
-            input.value.value = input.value.default;
-        }
         input.value.value = parseValueByType(input);
         validateInput(input, subcommand);
         return input;
@@ -58,7 +53,6 @@ export function parseInputs(subcommand: HelmSubcommand, config: GithubActionInpu
 }
 
 export function validateInput(input: GithubActionInputEntry, subcommand: HelmSubcommand): boolean {
-    // since we support files for the subcommand, we should stil
     if (subcommand === HelmSubcommand.None && input.value.type !== GithubActionInputType.File) {
         return true;
     }
@@ -66,10 +60,7 @@ export function validateInput(input: GithubActionInputEntry, subcommand: HelmSub
     const hasValue = input.value.value !== "" && input.value.value !== undefined;
     const isFalseBoolean = input.value.type === GithubActionInputType.Boolean && input.value.value === false;
 
-    // default case is already handled in `parseInputs`
-    if (input.value.required && isSupportedSubcommand && !hasValue) {
-        throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`)
-    } else if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
+    if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
         // boolean is set to false by default and will not be passed as a flag
         throw Error(`${input.name} is not supported for ${subcommand}`);
     }
@@ -105,8 +96,19 @@ export function parseValueByType(input: GithubActionInputEntry): string | boolea
             }
 
             const val = <string>value;
-            return val.toLowerCase() === "true";
+            switch (val.toLowerCase()) {
+                case "true":
+                    return true;
+                case "false":
+                    return false;
+                default:
+                    return undefined;
+            }
         case GithubActionInputType.Number:
+            const strval = String(value).toLowerCase();
+            if (strval === "true" || strval === "false") {
+                throw Error("boolean value won't be auto-converted to a number, use `0`/`1` respectively");
+            }
             return Number(value);
         case GithubActionInputType.File:
             return value;
@@ -141,7 +143,10 @@ export function cleanupFiles(inputs: GithubActionInputEntry[]) {
             return entry;
         }
 
-        deleteTmpfile(<string>entry.value.value);
+        const value = <string>entry.value.value;
+        if (value !== undefined) {
+            deleteTmpfile(value);
+        }
     })
 }
 
@@ -155,7 +160,7 @@ export function inputsToHelmFlags(inputs: GithubActionInputEntry[]): string[] {
                 return flag;
             }
         } else if (input.value.value !== "") {
-            const value = input.value.value || input.value.default;
+            const value = input.value.value;
 
             return `${flag}=${value}`
         } else {
@@ -186,4 +191,9 @@ export function executeHelm(args: string): string {
     console.log(stdout);
 
     return stdout;
+}
+
+export function isHelpOutput(stdout: string): boolean {
+    stdout = stdout.toLowerCase();
+    return stdout.includes("available commands") && stdout.includes("usage") && stdout.includes("helm [command]");
 }

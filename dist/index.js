@@ -1726,6 +1726,10 @@ function checkBypass(reqUrl) {
     if (!reqUrl.hostname) {
         return false;
     }
+    const reqHost = reqUrl.hostname;
+    if (isLoopbackAddress(reqHost)) {
+        return true;
+    }
     const noProxy = process.env['no_proxy'] || process.env['NO_PROXY'] || '';
     if (!noProxy) {
         return false;
@@ -1751,13 +1755,24 @@ function checkBypass(reqUrl) {
         .split(',')
         .map(x => x.trim().toUpperCase())
         .filter(x => x)) {
-        if (upperReqHosts.some(x => x === upperNoProxyItem)) {
+        if (upperNoProxyItem === '*' ||
+            upperReqHosts.some(x => x === upperNoProxyItem ||
+                x.endsWith(`.${upperNoProxyItem}`) ||
+                (upperNoProxyItem.startsWith('.') &&
+                    x.endsWith(`${upperNoProxyItem}`)))) {
             return true;
         }
     }
     return false;
 }
 exports.checkBypass = checkBypass;
+function isLoopbackAddress(host) {
+    const hostLower = host.toLowerCase();
+    return (hostLower === 'localhost' ||
+        hostLower.startsWith('127.') ||
+        hostLower.startsWith('[::1]') ||
+        hostLower.startsWith('[0:0:0:0:0:0:0:1]'));
+}
 //# sourceMappingURL=proxy.js.map
 
 /***/ }),
@@ -2694,7 +2709,7 @@ exports["default"] = _default;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.executeHelm = exports.getInputsByType = exports.getValueForName = exports.getInputEntry = exports.inputsToHelmFlags = exports.cleanupFiles = exports.handleFileInputs = exports.parseValueByType = exports.validateInput = exports.parseInputs = exports.populateInputConfigValues = exports.sortInputs = exports.validateReleaseName = exports.getPriority = void 0;
+exports.isHelpOutput = exports.executeHelm = exports.getInputsByType = exports.getValueForName = exports.getInputEntry = exports.inputsToHelmFlags = exports.cleanupFiles = exports.handleFileInputs = exports.parseValueByType = exports.validateInput = exports.parseInputs = exports.populateInputConfigValues = exports.sortInputs = exports.validateReleaseName = exports.getPriority = void 0;
 const fs = __nccwpck_require__(147);
 const core = __nccwpck_require__(696);
 const input_definitions_1 = __nccwpck_require__(275);
@@ -2723,7 +2738,6 @@ function validateReleaseName(subcommand, inputs) {
             throw Error("(only) one of `generate_name` or `release_name` must be set");
         }
     }
-    return true;
 }
 exports.validateReleaseName = validateReleaseName;
 function sortInputs(inputs) {
@@ -2739,9 +2753,6 @@ function populateInputConfigValues(config = input_definitions_1.GITHUB_ACTIONS_I
 exports.populateInputConfigValues = populateInputConfigValues;
 function parseInputs(subcommand, config = input_definitions_1.GITHUB_ACTIONS_INPUT_CONFIGURATION) {
     const result = config.map((input) => {
-        if (input.value.value === undefined || input.value.value === "") {
-            input.value.value = input.value.default;
-        }
         input.value.value = parseValueByType(input);
         validateInput(input, subcommand);
         return input;
@@ -2750,18 +2761,13 @@ function parseInputs(subcommand, config = input_definitions_1.GITHUB_ACTIONS_INP
 }
 exports.parseInputs = parseInputs;
 function validateInput(input, subcommand) {
-    // since we support files for the subcommand, we should stil
     if (subcommand === models_1.HelmSubcommand.None && input.value.type !== models_1.GithubActionInputType.File) {
         return true;
     }
     const isSupportedSubcommand = input.value.supported_subcommands.includes(subcommand) || input.value.supported_subcommands.includes(models_1.HelmSubcommand.All);
     const hasValue = input.value.value !== "" && input.value.value !== undefined;
     const isFalseBoolean = input.value.type === models_1.GithubActionInputType.Boolean && input.value.value === false;
-    // default case is already handled in `parseInputs`
-    if (input.value.required && isSupportedSubcommand && !hasValue) {
-        throw Error(`${input.name} is required for ${subcommand} but has no (or empty) value`);
-    }
-    else if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
+    if (!isSupportedSubcommand && hasValue && !isFalseBoolean) {
         // boolean is set to false by default and will not be passed as a flag
         throw Error(`${input.name} is not supported for ${subcommand}`);
     }
@@ -2793,8 +2799,19 @@ function parseValueByType(input) {
                 return input.value.value;
             }
             const val = value;
-            return val.toLowerCase() === "true";
+            switch (val.toLowerCase()) {
+                case "true":
+                    return true;
+                case "false":
+                    return false;
+                default:
+                    return undefined;
+            }
         case models_1.GithubActionInputType.Number:
+            const strval = String(value).toLowerCase();
+            if (strval === "true" || strval === "false") {
+                throw Error("boolean value won't be auto-converted to a number, use `0`/`1` respectively");
+            }
             return Number(value);
         case models_1.GithubActionInputType.File:
             return value;
@@ -2828,7 +2845,10 @@ function cleanupFiles(inputs) {
         if (entry.value.type !== models_1.GithubActionInputType.File || entry.value.value === "") {
             return entry;
         }
-        (0, tmpfile_1.deleteTmpfile)(entry.value.value);
+        const value = entry.value.value;
+        if (value !== undefined) {
+            (0, tmpfile_1.deleteTmpfile)(value);
+        }
     });
 }
 exports.cleanupFiles = cleanupFiles;
@@ -2844,7 +2864,7 @@ function inputsToHelmFlags(inputs) {
             }
         }
         else if (input.value.value !== "") {
-            const value = input.value.value || input.value.default;
+            const value = input.value.value;
             return `${flag}=${value}`;
         }
         else {
@@ -2875,6 +2895,11 @@ function executeHelm(args) {
     return stdout;
 }
 exports.executeHelm = executeHelm;
+function isHelpOutput(stdout) {
+    stdout = stdout.toLowerCase();
+    return stdout.includes("available commands") && stdout.includes("usage") && stdout.includes("helm [command]");
+}
+exports.isHelpOutput = isHelpOutput;
 
 
 /***/ }),
@@ -2892,8 +2917,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'burst_limit',
         value: {
             description: 'client-side default throttling limit (default 100)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.All],
             type: models_1.GithubActionInputType.Number,
@@ -2903,8 +2926,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'debug',
         value: {
             description: 'enable verbose output',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.All],
             type: models_1.GithubActionInputType.Boolean,
@@ -2914,8 +2935,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'kube_apiserver',
         value: {
             description: 'the address and the port for the Kubernetes API server',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.All],
             type: models_1.GithubActionInputType.String,
@@ -2925,8 +2944,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'kube_as_group',
         value: {
             description: 'group to impersonate for the operation, this flag can be repeated to specify multiple groups.',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.All],
             type: models_1.GithubActionInputType.String,
@@ -2936,8 +2953,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'kube_as_user',
         value: {
             description: 'username to impersonate for the operation',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.All],
             type: models_1.GithubActionInputType.String,
@@ -2947,8 +2962,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'kube_ca_file',
         value: {
             description: 'the certificate authority file for the Kubernetes API server connection',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.All],
             type: models_1.GithubActionInputType.File,
@@ -2958,8 +2971,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'kube_context',
         value: {
             description: 'name of the kubeconfig context to use',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.All],
             type: models_1.GithubActionInputType.String,
@@ -2969,8 +2980,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'kube_insecure_skip_tls_verify',
         value: {
             description: "if true, the Kubernetes API server's certificate will not be checked for validity. This will make your HTTPS connections insecure",
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.All],
             type: models_1.GithubActionInputType.Boolean,
@@ -2980,8 +2989,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'kube_token',
         value: {
             description: 'server name to use for Kubernetes API server certificate validation. If it is not provided, the hostname used to contact the server is used',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.All],
             type: models_1.GithubActionInputType.String,
@@ -2991,8 +2998,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'kubeconfig',
         value: {
             description: 'path to the kubeconfig file',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.All],
             type: models_1.GithubActionInputType.File,
@@ -3002,8 +3007,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'namespace',
         value: {
             description: 'namespace scope for this request',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.All],
             type: models_1.GithubActionInputType.String,
@@ -3013,8 +3016,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'registry_config',
         value: {
             description: "path to the registry config file (default '$HOME/.config/helm/registry/config.json')",
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.All],
             type: models_1.GithubActionInputType.File,
@@ -3024,8 +3025,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'repository_config',
         value: {
             description: "path to the file containing repository names and URLs (default '$HOME.config/helm/repositories.yaml')",
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.All],
             type: models_1.GithubActionInputType.File,
@@ -3035,8 +3034,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'atomic',
         value: {
             description: 'if set, the installation process deletes the installation on failure. The --wait flag will be set automatically if --atomic is used',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3046,8 +3043,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'ca_file',
         value: {
             description: 'verify certificates of HTTPS-enabled servers using this CA bundle',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.File,
@@ -3057,8 +3052,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'cert_file',
         value: {
             description: 'identify HTTPS client using this SSL certificate file',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.File,
@@ -3068,8 +3061,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'cleanup_on_fail',
         value: {
             description: 'allow deletion of new resources created in this upgrade when upgrade fails',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
@@ -3079,8 +3070,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'create_namespace',
         value: {
             description: 'create the release namespace if not present',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3090,8 +3079,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'dependency_update',
         value: {
             description: 'update dependencies if they are missing before installing the chart',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3101,8 +3088,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'description',
         value: {
             description: 'add a custom description',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall],
             type: models_1.GithubActionInputType.String,
@@ -3112,8 +3097,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'devel',
         value: {
             description: "use development versions, too. Equivalent to version '>0.0.0-0'. If --version is set, this is ignored",
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3123,8 +3106,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'disable_openapi_validation',
         value: {
             description: 'if set, the installation process will not validate rendered templates against the Kubernetes OpenAPI Schem',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3134,8 +3115,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'dry_run',
         value: {
             description: 'simulate an install',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
@@ -3145,8 +3124,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'force',
         value: {
             description: 'force resource updates through a replacement strategy',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
@@ -3156,8 +3133,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'generate_name',
         value: {
             description: 'generate the name (and omit the NAME parameter)',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3167,8 +3142,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'history_max',
         value: {
             description: 'limit the maximum number of revisions saved per release. Use 0 for no limit (default 10)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
@@ -3178,8 +3151,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'insecure_skip_tls_verify',
         value: {
             description: 'skip tls certificate checks for the chart download',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3189,8 +3160,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'install',
         value: {
             description: "if a release by this name doesn't already exist, run an install",
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade],
             type: models_1.GithubActionInputType.Boolean,
@@ -3200,8 +3169,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'key_file',
         value: {
             description: 'identify HTTPS client using this SSL key file',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.File,
@@ -3211,8 +3178,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'keyring',
         value: {
             description: 'location of public keys used for verification (default "$HOME/.gnupg/pubring.gpg")',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.File,
@@ -3222,8 +3187,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'name_template',
         value: {
             description: 'specify template used to name the release',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
@@ -3233,8 +3196,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'no_hooks',
         value: {
             description: 'prevent hooks from running during install',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
@@ -3244,8 +3205,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'output',
         value: {
             description: 'prints the output in the specified format. Allowed values: table, json, yaml (default table)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
@@ -3255,8 +3214,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'pass_credentials',
         value: {
             description: 'pass credentials to all domains',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3266,8 +3223,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'password',
         value: {
             description: 'chart repository password where to locate the requested chart',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
@@ -3277,8 +3232,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'recreate_pods',
         value: {
             description: 'performs pods restart for the resource if applicable',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
@@ -3288,8 +3241,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'ref',
         value: {
             description: 'reference to a chart repository (e.g. url, absolute or relative path)',
-            required: true,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
@@ -3300,8 +3251,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'release_name',
         value: {
             description: 'name of the helm release',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
@@ -3312,8 +3261,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'render_subchart_notes',
         value: {
             description: 'if set, render subchart notes along with the parent',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3323,8 +3270,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'replace',
         value: {
             description: 're-use the given name, only if that name is a deleted release which remains in the history. This is unsafe in production',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3334,8 +3279,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'repo',
         value: {
             description: 'chart repository URL where to locate the requested chart',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
@@ -3345,8 +3288,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'reset_values',
         value: {
             description: 'when upgrading, reset the values to the ones built into the chart',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade],
             type: models_1.GithubActionInputType.String,
@@ -3356,8 +3297,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'reuse_values',
         value: {
             description: "when upgrading, reuse the last release's values and merge in any overrides from the command line via --set and -f. If '--reset-values' is specified, this is ignored",
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade],
             type: models_1.GithubActionInputType.String,
@@ -3367,8 +3306,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'revision',
         value: {
             description: "a revision (version) number. If this argument is omitted, it will roll back to the previous release",
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Number,
@@ -3378,8 +3315,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'set',
         value: {
             description: 'set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
@@ -3389,8 +3324,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'set_file',
         value: {
             description: 'set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.File,
@@ -3400,8 +3333,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'set_json',
         value: {
             description: 'set JSON values on the command line (can specify multiple or separate values with commas: key1=jsonval1,key2=jsonval2)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
@@ -3411,8 +3342,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'set_string',
         value: {
             description: 'set STRING values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
@@ -3422,8 +3351,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'skip_crds',
         value: {
             description: 'if set, no CRDs will be installed when an upgrade is performed with install flag enabled. By default, CRDs are installed if not already present, when an upgrade is performed with install flag enabled',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3433,8 +3360,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'timeout',
         value: {
             description: 'time to wait for any individual Kubernetes operation (like Jobs for hooks) (default 5m0s)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
@@ -3444,8 +3369,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'username',
         value: {
             description: 'chart repository username where to locate the requested chart',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
@@ -3455,8 +3378,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'values',
         value: {
             description: 'specify values in a YAML file or a URL (can specify multiple)',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String, // we handle this as a string since `File` doesn't currently support existing files
@@ -3466,8 +3387,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'verify',
         value: {
             description: 'verify the package before using it',
-            required: true,
-            default: 'false',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.Boolean,
@@ -3477,8 +3396,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'version',
         value: {
             description: 'chart version to install. If this is not specified, the latest version is installed.',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install],
             type: models_1.GithubActionInputType.String,
@@ -3488,8 +3405,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'wait',
         value: {
             description: 'if set, will wait until all Pods, PVCs, Services, and minimum number of Pods of a Deployment, StatefulSet, or ReplicaSet are in a ready state before marking the release as successful. It will wait for as long as --timeout',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Uninstall, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.String,
@@ -3499,8 +3414,6 @@ exports.GITHUB_ACTIONS_INPUT_CONFIGURATION = [
         name: 'wait_for_jobs',
         value: {
             description: 'if set and --wait enabled, will wait until all Jobs have been completed before marking the release as successful. It will wait for as long as --timeout',
-            required: false,
-            default: '',
             value: undefined,
             supported_subcommands: [models_1.HelmSubcommand.Upgrade, models_1.HelmSubcommand.Install, models_1.HelmSubcommand.Rollback],
             type: models_1.GithubActionInputType.Boolean,
@@ -3744,7 +3657,10 @@ try {
     }
     inputs = (0, helper_1.sortInputs)((0, helper_1.parseInputs)(subcommand, inputs));
     const flags = (0, helper_1.inputsToHelmFlags)(inputs).join(" ");
-    (0, helper_1.executeHelm)(`${command} ${flags}`);
+    const stdout = (0, helper_1.executeHelm)(`${command} ${flags}`);
+    if ((0, helper_1.isHelpOutput)(stdout)) {
+        throw Error(`failing due to detected helm help output`);
+    }
 }
 catch (error) {
     core.setFailed(error.message);

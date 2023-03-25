@@ -1,0 +1,2 @@
+export INPUT_RAW_COMMAND="lint examples/lint-failure "
+export INPUT_KUBECONFIG="/home/torben/.kube/config"
