@@ -350,7 +350,7 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
         value: {
             description: 'name of the helm release',
             value: undefined,
-            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install, HelmSubcommand.Rollback],
+            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install, HelmSubcommand.Rollback, HelmSubcommand.Uninstall],
             type: GithubActionInputType.String,
             priority: 11
         },
