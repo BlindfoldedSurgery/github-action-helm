@@ -255,6 +255,15 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
         },
     },
     {
+        name: 'keep_history',
+        value: {
+            description: 'remove all associated resources and mark the release as deleted, but retain the release history',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.Uninstall],
+            type: GithubActionInputType.Boolean,
+        },
+    },
+    {
         name: 'key_file',
         value: {
             description: 'identify HTTPS client using this SSL key file',
