@@ -38,5 +38,7 @@ jobs:
     steps:
       - uses: OpenAlcoholics/github-action-helm@develop
         with:
-          raw_command: uninstall -n action-example install-empty
+          subcommand: uninstall
+          namespace: action-example
+          release_name: install-empty
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
