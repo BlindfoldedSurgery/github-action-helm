@@ -3,15 +3,15 @@ name: Build and deploy
 on:
   push:
     branches:
-      - 'master'
+      - "master"
 
 jobs:
   unit_tests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - run: yarn install
-    - run: yarn test
+      - uses: actions/checkout@v3
+      - run: yarn install
+      - run: yarn test
 
   test_against_master:
     runs-on: ubuntu-latest
