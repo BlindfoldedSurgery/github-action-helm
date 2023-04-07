@@ -6,6 +6,13 @@ on:
       - 'master'
 
 jobs:
+  unit_tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - run: yarn install
+    - run: yarn test
+
   test_against_master:
     runs-on: ubuntu-latest
     steps:
@@ -40,5 +47,4 @@ jobs:
           subcommand: uninstall
           namespace: action-example
           release_name: install-empty
-          kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
