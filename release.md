@@ -1,3 +1,5 @@
-Don't allow `1`/`0` as values for boolean fields
+Add support for 'lint' subcommand
 
-Fail if output is the helm helm output
+Remove disclaimer from README.md
+
+Update dependencies
