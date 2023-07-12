@@ -1,7 +1,5 @@
 # github-action-helm
 
-:warning: currently in active development, basic upgrade/install works fine
-
 This action simplifies interaction with the helm command in a github action.
 
 Any input which helm interacts with as a file (e.g. `kubeconfig`) will be written into a temporary file, this action will validate that the file is not empty. If the value is an existing path that file will be used.
@@ -58,15 +56,16 @@ If you require a different helm version you should install this yourself before 
 
 currently the following subcommands are supported/tested:
 
-- [x] upgrade
 - [x] install
+- [x] lint
+- [x] rollback
+- [x] uninstall
+- [x] upgrade
 - [ ] create
 - [ ] dependency
 - [ ] diff
 - [ ] get
 - [ ] history
-- [ ] install
-- [ ] lint
 - [ ] list
 - [ ] package
 - [ ] plugin
@@ -74,13 +73,10 @@ currently the following subcommands are supported/tested:
 - [ ] push
 - [ ] registry
 - [ ] repo
-- [ ] rollback
 - [ ] show
 - [ ] status
 - [ ] template
 - [ ] test
-- [ ] uninstall
-- [ ] upgrade
 - [ ] verify
 
 unimplemented flags:
