@@ -331,7 +331,7 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
         value: {
             description: 'path to a chart repository (e.g. url, absolute or relative path)',
             value: undefined,
-            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install],
+            supported_subcommands: [HelmSubcommand.Lint],
             type: GithubActionInputType.String,
             priority: 10
         },
