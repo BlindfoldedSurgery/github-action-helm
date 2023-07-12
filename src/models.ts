@@ -4,6 +4,7 @@ export enum HelmSubcommand {
     Uninstall = "uninstall",
     Upgrade = "upgrade",
     Rollback = "rollback",
+    Lint = "lint",
     None = "",
 }
 

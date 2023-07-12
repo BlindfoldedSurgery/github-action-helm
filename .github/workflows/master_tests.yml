@@ -3,9 +3,16 @@ name: Build and deploy
 on:
   push:
     branches:
-      - 'master'
+      - "master"
 
 jobs:
+  unit_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: yarn install
+      - run: yarn test
+
   test_against_master:
     runs-on: ubuntu-latest
     steps:
@@ -34,8 +41,11 @@ jobs:
   cleanup:
     runs-on: ubuntu-latest
     needs: test_against_master
+    if: always()
     steps:
       - uses: OpenAlcoholics/github-action-helm@master
         with:
-          raw_command: uninstall -n action-example install-empty
+          subcommand: uninstall
+          namespace: action-example
+          release_name: install-empty
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}

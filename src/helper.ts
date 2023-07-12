@@ -153,7 +153,7 @@ export function cleanupFiles(inputs: GithubActionInputEntry[]) {
 export function inputsToHelmFlags(inputs: GithubActionInputEntry[]): string[] {
     return <string[]>inputs.map((input: GithubActionInputEntry) => {
         const flag = `--${input.name.replace(/_/g, "-")}`
-        if (input.name === "ref" || input.name === "release_name" || input.name === "revision") {
+        if (input.name === "ref" || input.name === "release_name" || input.name === "revision" || input.name == "path") {
             return input.value.value;
         } else if (input.value.type === GithubActionInputType.Boolean) {
             if (input.value.value) {
