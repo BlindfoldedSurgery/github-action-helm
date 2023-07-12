@@ -327,6 +327,15 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
         },
     },
     {
+        name: 'quiet',
+        value: {
+            description: 'print only warnings and errors',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.Lint],
+            type: GithubActionInputType.Boolean,
+        },
+    },
+    {
         name: 'recreate_pods',
         value: {
             description: 'performs pods restart for the resource if applicable',
@@ -414,7 +423,7 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
         value: {
             description: 'set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)',
             value: undefined,
-            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install],
+            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install, HelmSubcommand.Lint],
             type: GithubActionInputType.String,
         },
     },
@@ -423,7 +432,7 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
         value: {
             description: 'set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)',
             value: undefined,
-            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install],
+            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install, HelmSubcommand.Lint],
             type: GithubActionInputType.File,
         },
     },
@@ -432,7 +441,7 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
         value: {
             description: 'set JSON values on the command line (can specify multiple or separate values with commas: key1=jsonval1,key2=jsonval2)',
             value: undefined,
-            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install],
+            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install, HelmSubcommand.Lint],
             type: GithubActionInputType.String,
         },
     },
@@ -441,7 +450,7 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
         value: {
             description: 'set STRING values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)',
             value: undefined,
-            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install],
+            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install, HelmSubcommand.Lint],
             type: GithubActionInputType.String,
         },
     },
@@ -451,6 +460,15 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
             description: 'if set, no CRDs will be installed when an upgrade is performed with install flag enabled. By default, CRDs are installed if not already present, when an upgrade is performed with install flag enabled',
             value: undefined,
             supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install],
+            type: GithubActionInputType.Boolean,
+        },
+    },
+    {
+        name: 'strict',
+        value: {
+            description: 'fail on lint warnings',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.Lint],
             type: GithubActionInputType.Boolean,
         },
     },
@@ -468,7 +486,7 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
         value: {
             description: 'chart repository username where to locate the requested chart',
             value: undefined,
-            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install],
+            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install, HelmSubcommand.Lint],
             type: GithubActionInputType.String,
         },
     },
