@@ -327,6 +327,16 @@ export const GITHUB_ACTIONS_INPUT_CONFIGURATION: GithubActionInputEntry[] = [
         },
     },
     {
+        name: 'path',
+        value: {
+            description: 'path to a chart repository (e.g. url, absolute or relative path)',
+            value: undefined,
+            supported_subcommands: [HelmSubcommand.Upgrade, HelmSubcommand.Install],
+            type: GithubActionInputType.String,
+            priority: 10
+        },
+    },
+    {
         name: 'quiet',
         value: {
             description: 'print only warnings and errors',

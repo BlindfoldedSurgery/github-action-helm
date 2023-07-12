@@ -21,6 +21,7 @@ jobs:
       - uses: OpenAlcoholics/github-action-helm@develop
         with:
           subcommand: lint
+          path: examples/install-empty
           namespace: action-example
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
       - uses: OpenAlcoholics/github-action-helm@develop
