@@ -21,7 +21,7 @@ jobs:
       - uses: OpenAlcoholics/github-action-helm@develop
         with:
           subcommand: lint
-          path: examples/install-empty
+          path: examples/default-helm-create-chart
           namespace: action-example
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
       - uses: OpenAlcoholics/github-action-helm@develop
