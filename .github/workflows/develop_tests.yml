@@ -3,7 +3,7 @@ name: Build and deploy
 on:
   push:
     branches:
-      - "develop"
+      - "!master"
   pull_request:
 
 jobs:
@@ -18,27 +18,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: OpenAlcoholics/github-action-helm@develop
+      - uses: OpenAlcoholics/github-action-helm@${{ github.ref_name }}
         with:
           subcommand: lint
           path: examples/default-helm-create-chart
           namespace: action-example
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
-      - uses: OpenAlcoholics/github-action-helm@develop
+      - uses: OpenAlcoholics/github-action-helm@${{ github.ref_name }}
         with:
           subcommand: install
           ref: examples/install-empty
           release_name: install-empty
           namespace: action-example
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
-      - uses: OpenAlcoholics/github-action-helm@develop
+      - uses: OpenAlcoholics/github-action-helm@${{ github.ref_name }}
         with:
           subcommand: upgrade
           ref: examples/install-empty
           release_name: install-empty
           namespace: action-example
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
-      - uses: OpenAlcoholics/github-action-helm@develop
+      - uses: OpenAlcoholics/github-action-helm@${{ github.ref_name }}
         with:
           subcommand: rollback
           release_name: install-empty
@@ -50,7 +50,7 @@ jobs:
     needs: test_against_develop
     if: always()
     steps:
-      - uses: OpenAlcoholics/github-action-helm@develop
+      - uses: OpenAlcoholics/github-action-helm@${{ github.ref_name }}
         with:
           subcommand: uninstall
           namespace: action-example
