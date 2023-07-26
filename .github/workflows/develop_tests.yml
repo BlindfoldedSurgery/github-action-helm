@@ -20,27 +20,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: OpenAlcoholics/github-action-helm@${GITHUB_REF_NAME}
+      - uses: BlindfoldedSurgery/github-action-helm@${GITHUB_REF_NAME}
         with:
           subcommand: lint
           path: examples/default-helm-create-chart
           namespace: action-example
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
-      - uses: OpenAlcoholics/github-action-helm@${GITHUB_REF_NAME}
+      - uses: BlindfoldedSurgery/github-action-helm@${GITHUB_REF_NAME}
         with:
           subcommand: install
           ref: examples/install-empty
           release_name: install-empty
           namespace: action-example
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
-      - uses: OpenAlcoholics/github-action-helm@${GITHUB_REF_NAME}
+      - uses: BlindfoldedSurgery/github-action-helm@${GITHUB_REF_NAME}
         with:
           subcommand: upgrade
           ref: examples/install-empty
           release_name: install-empty
           namespace: action-example
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
-      - uses: OpenAlcoholics/github-action-helm@${GITHUB_REF_NAME}
+      - uses: BlindfoldedSurgery/github-action-helm@${GITHUB_REF_NAME}
         with:
           subcommand: rollback
           release_name: install-empty
@@ -52,7 +52,7 @@ jobs:
     needs: test_against_develop
     if: always()
     steps:
-      - uses: OpenAlcoholics/github-action-helm@${GITHUB_REF_NAME}
+      - uses: BlindfoldedSurgery/github-action-helm@${GITHUB_REF_NAME}
         with:
           subcommand: uninstall
           namespace: action-example
