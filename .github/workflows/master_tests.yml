@@ -24,14 +24,14 @@ jobs:
           release_name: install-empty
           namespace: action-example
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
-      - uses: BlindfoldedSurgery/github-action-helm@develop
+      - uses: BlindfoldedSurgery/github-action-helm@master
         with:
           subcommand: upgrade
           ref: examples/install-empty
           release_name: install-empty
           namespace: action-example
           kubeconfig: ${{ secrets.KUBECONFIG_RAW }}
-      - uses: BlindfoldedSurgery/github-action-helm@develop
+      - uses: BlindfoldedSurgery/github-action-helm@master
         with:
           subcommand: rollback
           release_name: install-empty
