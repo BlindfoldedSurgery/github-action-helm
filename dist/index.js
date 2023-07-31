@@ -2832,6 +2832,9 @@ function handleFileInputs(inputs) {
             return entry;
         }
         else {
+            if (entry.value.value.length === 0) {
+                throw Error(`value for ${entry.name} is empty (content for file arguments should not be empty, omit file argument instead)`);
+            }
             console.info(`handle value from ${entry.name} as file content (generating temporary file)`);
             const path = (0, tmpfile_1.writeTmpfile)(entry.value.value);
             entry.value.value = path;
