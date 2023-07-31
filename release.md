@@ -1,5 +1,1 @@
-Add support for 'lint' subcommand
-
-Remove disclaimer from README.md
-
-Update dependencies
+Move references to new organization (`OpenAlcoholics` -> `BlindfoldedSurgery`)
