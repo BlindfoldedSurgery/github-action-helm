@@ -15,7 +15,7 @@ deploy:
   steps:
     - uses: actions/checkout@v3
     - name: install helm chart
-      uses: OpenAlcoholics/github-action-helm@v0.1.0
+      uses: BlindfoldedSurgery/github-action-helm@v0.3.0
       with:
         subcommand: upgrade
         ref: .
