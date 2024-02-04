@@ -212,5 +212,5 @@ inputs:
     description: "if set and --wait enabled, will wait until all Jobs have been completed before marking the release as successful. It will wait for as long as --timeout"
     required: false
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
